@@ -980,9 +980,46 @@ button:focus-visible,.filter:focus-visible,.chip:focus-visible,.tag:focus-visibl
   mask-image:linear-gradient(90deg,transparent 0,#000 10px,#000 calc(100% - 10px),transparent 100%);
 }
 .mq.is-on .mq-in{will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+
+/* ============ 15. splash / loading ============ */
+/* One element covers both cases: the launch screen (solid #0B0617, holds the app
+   back until the track list is in) and the buffering veil while a track streams
+   (same mark over a blurred dark scrim, never in the way of the controls). */
+.splash{position:fixed;inset:0;z-index:120;display:flex;align-items:center;justify-content:center;
+  background:#0B0617;opacity:1;pointer-events:auto;-webkit-tap-highlight-color:transparent;
+  transition:opacity .46s cubic-bezier(.4,0,.2,1)}
+.splash.is-buffer{background:rgba(11,6,23,.72);pointer-events:none;
+  -webkit-backdrop-filter:blur(22px) saturate(160%);backdrop-filter:blur(22px) saturate(160%)}
+.splash.is-out{opacity:0;pointer-events:none}
+.splash-in{display:flex;flex-direction:column;align-items:center;gap:16px}
+.splash-logo{width:92px;height:92px;border-radius:23px;box-shadow:0 18px 48px rgba(109,40,217,.40),inset 0 1px 0 rgba(255,255,255,.10)}
+.splash-word{font-family:'Montserrat','Helvetica Neue',sans-serif;font-weight:700;font-size:25px;line-height:1;
+  letter-spacing:.36em;text-indent:.36em;color:rgba(255,255,255,.96)}
+.splash-bar{position:relative;width:104px;height:2px;border-radius:2px;background:rgba(255,255,255,.13);overflow:hidden}
+.splash-bar i{position:absolute;left:0;top:0;bottom:0;width:44%;border-radius:2px;
+  background:linear-gradient(90deg,rgba(167,139,250,0),#a78bfa 45%,#38bdf8);
+  animation:splashSlide 1.15s cubic-bezier(.55,.05,.35,1) infinite}
+.splash.is-buffer .splash-logo{width:78px;height:78px;border-radius:20px}
+.splash.is-buffer .splash-word{font-size:21px}
+@keyframes splashSlide{0%{transform:translateX(-108%)}100%{transform:translateX(248%)}}
+@media (max-width:520px){
+  .splash-logo{width:80px;height:80px;border-radius:20px}
+  .splash-word{font-size:21px}
+  .splash-in{gap:14px}
+}
+@media (prefers-reduced-motion:reduce){
+  .splash-bar i{animation:none;width:100%;opacity:.45}
+}
 </style>
 </head>
 <body>
+<div class="splash" id="splash" role="status" aria-live="polite" aria-label="ENPLY loading">
+  <div class="splash-in">
+    <img class="splash-logo" src="./icons/logo.png" alt="" width="92" height="92" decoding="async">
+    <div class="splash-word">ENPLY</div>
+    <div class="splash-bar" aria-hidden="true"><i></i></div>
+  </div>
+</div>
 <svg class="sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
   <symbol id="i-home" viewBox="0 0 24 24"><path d="M3.1 10.7 12 3.3l8.9 7.4"/><path d="M5.5 9.5v10.9h13V9.5"/><path d="M9.8 20.4v-5.7h4.4v5.7"/></symbol>
   <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.7" cy="10.7" r="6.6"/><path d="m15.6 15.6 5 5"/></symbol>
@@ -1399,6 +1436,65 @@ const mobileNarrow = () => !!(window.matchMedia && window.matchMedia('(max-width
 const svgURL = (s) => 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(s.replace(/\s{2,}/g, ' '));
 const icon = (name, cls) => '<svg class="ic ' + (cls || '') + '"><use href="#i-' + name + '"/></svg>';
 
+/* ===================== 0-1. splash / loading ===================== */
+/* The launch screen is already on top of the page from the markup, so the first
+   paint is the mark rather than a half-built shell. It lifts once the track list
+   is in and the minimum stay has passed, and it comes back — this time as a
+   blurred veil, after 200ms — whenever the playing track has to buffer. */
+const SPLASH_MIN_MS = 520;          // never a flicker on first load
+const SPLASH_MAX_MS = 6000;         // but never hold the app back either
+const SPLASH_BUFFER_MS = 200;       // a stall shorter than this is not shown
+const SPLASH_T0 = Date.now();
+let splashState = 'boot';           // 'boot' | 'buffer' | 'hidden'
+let splashBooted = false;
+let splashBufferTimer = 0;
+let splashHideTimer = 0;
+
+function splashFadeIn(mode) {
+  const el = $('#splash');
+  if (!el) return;
+  clearTimeout(splashHideTimer);
+  splashState = mode;
+  el.classList.toggle('is-buffer', mode === 'buffer');
+  el.style.display = '';
+  void el.offsetWidth;              // restart the opacity transition from 0
+  el.classList.remove('is-out');
+}
+
+function splashFadeOut() {
+  const el = $('#splash');
+  if (!el || splashState === 'hidden') return;
+  splashState = 'hidden';
+  el.classList.add('is-out');
+  clearTimeout(splashHideTimer);
+  splashHideTimer = setTimeout(() => {
+    if (splashState === 'hidden') el.style.display = 'none';
+  }, 520);
+}
+
+function splashBootDone() {
+  if (splashBooted) return;
+  splashBooted = true;
+  const wait = Math.max(0, SPLASH_MIN_MS - (Date.now() - SPLASH_T0));
+  splashHideTimer = setTimeout(() => { if (splashState === 'boot') splashFadeOut(); }, wait);
+}
+
+function splashBufferStart() {
+  if (!splashBooted || splashState === 'buffer') return;
+  clearTimeout(splashBufferTimer);
+  splashBufferTimer = setTimeout(() => {
+    if (!state.playing || !audio || audio.paused) return;
+    splashFadeIn('buffer');
+  }, SPLASH_BUFFER_MS);
+}
+
+function splashBufferEnd() {
+  clearTimeout(splashBufferTimer);
+  if (splashState === 'buffer') splashFadeOut();
+}
+
+setTimeout(splashBootDone, SPLASH_MAX_MS);
+
 /* ===================== 0-1. language (KO / EN) ===================== */
 const LANG_KEY = 'enply:lang:v1';
 const I18N = {
@@ -1678,20 +1774,7 @@ const I18N = {
 
 const PATCH_NOTES = [
   {
-    ver: 'v1.8.0', date: '2026.11.22', latest: true,
-    ko: [
-      '관리자 곡 추가·수정 폼 위에 “링크로 정보 불러오기”가 생겼어요. 유튜브나 사운드클라우드 링크를 붙여넣고 불러오기를 누르면 제목·아티스트·커버가 한 번에 채워집니다.',
-      '커버는 가장 큰 썸네일을 가져와 정사각형(1:1)으로 가운데를 잘라 담아요. youtu.be, Shorts, music.youtube.com 주소도 모두 알아봅니다.',
-      '제목에 붙은 “(Official Video)”, “[MV]” 같은 꼬리표는 걷어내고, “아티스트 - 곡” 형태면 아티스트 칸도 함께 채워요.'
-    ],
-    en: [
-      'Admin now has “Fill from a link” above the add/edit form. Paste a YouTube or SoundCloud link, press Fill in, and the title, artist, and cover all arrive at once.',
-      'The cover is the largest thumbnail, centre-cropped to a square (1:1). youtu.be, Shorts, and music.youtube.com links are all recognised.',
-      'Packaging such as “(Official Video)” or “[MV]” is stripped from the title, and an “Artist - Track” title fills the artist too.'
-    ]
-  },
-  {
-    ver: 'v1.7.0', date: '2026.11.22',
+    ver: 'v1.7.0', date: '2026.11.22', latest: true,
     ko: [
       '곡 제목이나 아티스트가 칸 너비보다 길면, 잠깐 멈춰 읽을 시간을 준 뒤 옆으로 부드럽게 흐르며 끝까지 보여줘요. 짧으면 가만히 있습니다.',
       '몰입형 풀스크린 플레이어(지금 재생), 모바일 미니 플레이어, 하단 플레이어 바 어디서든 같은 방식으로 동작해요. 화면 폭이 바뀌거나 곡이 바뀌면 넘치는지 다시 계산합니다.',
@@ -1707,14 +1790,10 @@ const PATCH_NOTES = [
     ver: 'v1.6.0', date: '2026.11.22',
     ko: [
       '앨범 커버가 재생·일시정지에 따라 커지고 작아지던 움직임과, 버튼을 누를 때의 모션을 걷어냈어요. 아이폰에서 훨씬 가볍게 느껴집니다.',
-      '트랙 정보를 data/tracks.json 파일로 분리했어요. 이제 사이트 코드만 새로 올려도 곡·커버·가사는 그대로 남습니다.',
-      '관리자에 “사이트 영구 저장 (GitHub 연동)”이 생겼어요. 토큰을 한 번 연결하면 곡을 추가·수정·삭제할 때마다 사이트에 자동으로 저장되고, 다른 기기에서도 같은 목록을 봅니다.',
       '홈 화면에 앱으로 설치할 수 있게 됐어요(아이콘 · 전체화면 · 오프라인 대비). 잠금화면과 제어 센터에서도 곡 정보가 보이고 재생·이전·다음을 누를 수 있습니다.'
     ],
     en: [
       'Dropped the cover scale between pause and play, and the motion on button presses. Taps feel much lighter on iPhone.',
-      'Track data now lives in data/tracks.json, so shipping a new index.html leaves tracks, covers, and lyrics untouched.',
-      'Admin has “Save to the site (GitHub)”: connect a token once and every add, edit, or delete is committed to the site, visible on any device.',
       'ENPLY can be added to the Home Screen as an app (icon, full screen, offline shell), and the lock screen / Control Center now show the track and can play, pause, or skip.'
     ]
   },
@@ -1722,13 +1801,11 @@ const PATCH_NOTES = [
     ver: 'v1.5.0', date: '2026.11.22',
     ko: [
       '모바일 지금 재생 화면을 몰입형 풀스크린 플레이어로 다시 만들었어요. 큰 앨범 아트와 시간 바, 큼직한 재생 버튼, 하단 가사 · 재생 목록 버튼이 들어갔습니다.',
-      '가사를 누르면 화면 전체가 몰입형 가사 모드로 바뀝니다. 커버 · 제목 · 재생 버튼이 있는 헤더와 함께 현재 가사가 부드럽게 가운데로 따라오고, 위아래 가사는 흐려집니다. 데스크톱 가사도 같은 느낌으로 다듬었어요.',
-      '관리자에서 모든 트랙의 제목, 아티스트, 카테고리, 태그, 커버, 가사를 수정할 수 있게 됐어요. 오디오를 새로 고르지 않으면 기존 파일을 그대로 씁니다.'
+      '가사를 누르면 화면 전체가 몰입형 가사 모드로 바뀝니다. 커버 · 제목 · 재생 버튼이 있는 헤더와 함께 현재 가사가 부드럽게 가운데로 따라오고, 위아래 가사는 흐려집니다. 데스크톱 가사도 같은 느낌으로 다듬었어요.'
     ],
     en: [
       'Rebuilt the mobile Now Playing screen as an immersive full-screen player: large album art, a smooth seek bar, big transport buttons, and a bottom Lyrics · Queue bar.',
-      'Tap Lyrics and the screen turns into immersive lyrics: a compact cover · title · play header, with the current line easing to the center while the lines above and below fade away. The desktop lyrics got the same treatment.',
-      'Admin now edits every track — title, artist, category, tags, cover, and lyrics. Leave the audio empty to keep the current file.'
+      'Tap Lyrics and the screen turns into immersive lyrics: a compact cover · title · play header, with the current line easing to the center while the lines above and below fade away. The desktop lyrics got the same treatment.'
     ]
   },
   {
@@ -1746,13 +1823,11 @@ const PATCH_NOTES = [
     ver: 'v1.3.0', date: '2026.11.22',
     ko: [
       '가사 뷰를 열었어요. 재생 위치에 맞춰 현재 가사가 또렷하게 강조되고, 가사를 누르면 그 지점으로 이동합니다.',
-      '플레이어 바를 접고 다시 열 수 있게 했어요.',
-      '관리자에서 올린 트랙이 홈·탐색·라이브러리에 바로 나타납니다.'
+      '플레이어 바를 접고 다시 열 수 있게 했어요.'
     ],
     en: [
       'Lyrics view is here. The current line sharpens as the track plays, and tapping a line jumps there.',
-      'The player bar can be tucked away and reopened.',
-      'Tracks you upload in Admin appear on Home, Explore, and Library right away.'
+      'The player bar can be tucked away and reopened.'
     ]
   },
   {
@@ -2578,27 +2653,193 @@ function bumpPlay(id) {
 }
 
 function destroyAudio() {
-  if (audio) {
-    try { audio.pause(); } catch (e) {}
-    audio.onended = null;
-    audio.onloadedmetadata = null;
-    audio = null;
-  }
+  if (!audio) return;
+  const old = audio;
+  audio = null;
+  try { old.onended = null; old.onloadedmetadata = null; } catch (e) {}
+  fadeOutAudio(old, () => {
+    try { old.pause(); } catch (e) {}
+    releaseFade(old);
+  });
 }
 
 function attachAudio(t) {
   if (!t.audioURL) return;
-  audio = new Audio(t.audioURL);
-  audio.volume = state.volume;
-  audio.muted = state.muted;
-  audio.preload = 'metadata';
-  audio.onloadedmetadata = () => {
-    if (audio && isFinite(audio.duration) && audio.duration > 0) {
-      state.dur = audio.duration;
+  const a = new Audio(t.audioURL);
+  audio = a;
+  a.volume = state.volume;
+  a.muted = state.muted;
+  a.preload = 'metadata';
+  fadeNodes(a, t.audioURL);         // route through the gain graph when that is safe
+  a.onloadedmetadata = () => {
+    if (audio === a && isFinite(a.duration) && a.duration > 0) {
+      state.dur = a.duration;
       updateProgress();
     }
   };
-  audio.onended = () => onEnded();
+  a.onended = () => { if (audio === a) onEnded(); };
+  a.addEventListener('waiting', splashBufferStart);
+  a.addEventListener('stalled', splashBufferStart);
+  a.addEventListener('playing', splashBufferEnd);
+  a.addEventListener('canplay', splashBufferEnd);
+  a.addEventListener('pause', splashBufferEnd);
+  a.addEventListener('error', splashBufferEnd);
+}
+
+/* ---------- gentle fades ----------
+   A track should not start or stop with a hard cut. iOS Safari ignores
+   audio.volume, so the element is routed through a Web Audio gain node whenever
+   that is safe: media from this origin (or a data:/blob: URL), a browser with
+   AudioContext, and a context that is already running or that a live tap can
+   start. Everything else — a file from another origin, no AudioContext, a
+   context that will not resume, any exception — stays on the plain element and
+   fades with audio.volume, and where even that is ignored the track simply plays
+   at its own level. Fading can never make a track silent or stop it playing. */
+const FADE_IN_MS = 280;
+const FADE_OUT_MS = 240;
+let actx = null;
+const fades = new WeakMap();      // Audio element -> { src, gain }
+const volRamps = new WeakMap();   // Audio element -> interval id (element-volume fallback)
+const pauseReqs = new WeakMap();  // Audio element -> the pause request allowed to stop it
+
+function fadeTarget() { return state.muted ? 0 : clamp(state.volume, 0, 1); }
+
+function gestureActive() {
+  try { return !navigator.userActivation || navigator.userActivation.isActive !== false; } catch (e) { return true; }
+}
+
+function fadeRoutable(url) {
+  try {
+    const u = new URL(url || '', location.href);
+    return u.protocol === 'data:' || u.protocol === 'blob:' || u.origin === location.origin;
+  } catch (e) { return false; }
+}
+
+function fadeNodes(a, url) {
+  if (!a) return null;
+  const cur = fades.get(a);
+  if (cur) return cur;
+  if (!fadeRoutable(url)) return null;
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    if (!actx) actx = new AC();
+    if (actx.state !== 'running') {
+      if (!gestureActive()) return null;   // never route into a context that may stay silent
+      const pr = actx.resume ? actx.resume() : null;
+      if (pr && pr.catch) pr.catch(() => {});
+    }
+    const src = actx.createMediaElementSource(a);
+    const gain = actx.createGain();
+    gain.gain.value = 0;                   // the fade-in brings it up
+    src.connect(gain);
+    gain.connect(actx.destination);
+    const nodes = { src: src, gain: gain };
+    fades.set(a, nodes);
+    try { a.volume = 1; a.muted = false; } catch (e) {}
+    return nodes;
+  } catch (e) { return null; }
+}
+
+function releaseFade(a) {
+  const nodes = a && fades.get(a);
+  if (!nodes) return;
+  fades.delete(a);
+  try { nodes.src.disconnect(); } catch (e) {}
+  try { nodes.gain.disconnect(); } catch (e) {}
+}
+
+function volRamp(a, from, to, ms) {
+  const prev = volRamps.get(a);
+  if (prev) clearInterval(prev);
+  const t0 = performance.now();
+  const id = setInterval(() => {
+    const k = Math.min(1, (performance.now() - t0) / Math.max(1, ms));
+    try { a.volume = from + (to - from) * k; } catch (e) {}
+    if (k >= 1) { clearInterval(id); volRamps.delete(a); }
+  }, 16);
+  volRamps.set(a, id);
+}
+
+function fadeTo(a, target, ms, fromSilence) {
+  const nodes = fades.get(a);
+  if (nodes && actx) {
+    try {
+      const g = nodes.gain.gain;
+      const t = actx.currentTime;
+      const start = fromSilence ? 0.0001 : Math.max(0.0001, g.value);
+      if (g.cancelAndHoldAtTime) { try { g.cancelAndHoldAtTime(t); } catch (e) { g.cancelScheduledValues(t); } }
+      else g.cancelScheduledValues(t);
+      g.setValueAtTime(start, t);
+      g.linearRampToValueAtTime(Math.max(0.0001, target), t + Math.max(0.02, ms / 1000));
+      return;
+    } catch (e) {}
+  }
+  volRamp(a, fromSilence ? 0 : a.volume, Math.max(0, target), ms);
+}
+
+function fadeSilence(a) {
+  const nodes = fades.get(a);
+  if (nodes && actx) {
+    try {
+      const g = nodes.gain.gain;
+      g.cancelScheduledValues(actx.currentTime);
+      g.setValueAtTime(0.0001, actx.currentTime);
+    } catch (e) {}
+    return;
+  }
+  const prev = volRamps.get(a);
+  if (prev) clearInterval(prev);
+  try { a.volume = 0; } catch (e) {}
+}
+
+function fadeOutAudio(a, done) {
+  if (!a) { if (done) done(); return; }
+  let finished = false;
+  let guard = 0;
+  const end = () => {
+    if (finished) return;
+    finished = true;
+    clearTimeout(guard);
+    if (done) done();
+  };
+  fadeTo(a, 0, FADE_OUT_MS, false);
+  guard = setTimeout(end, FADE_OUT_MS + 420);
+  setTimeout(end, FADE_OUT_MS + 24);
+}
+
+/* starts the element and brings it up; a pending fade-out pause is cancelled */
+function startPlayback(a) {
+  if (!a) return false;
+  pauseReqs.delete(a);
+  /* a context the phone suspended (screen lock, a call) has to be woken before it
+     can carry sound; a wake-up that is refused leaves the element as it was */
+  if (actx && actx.state !== 'running' && actx.resume) {
+    try { const r = actx.resume(); if (r && r.catch) r.catch(() => {}); } catch (e) {}
+  }
+  fadeSilence(a);
+  let p = null;
+  try { p = a.play(); } catch (e) {}
+  const up = () => fadeTo(a, fadeTarget(), FADE_IN_MS, true);
+  if (p && p.then) p.then(up, () => {});
+  else setTimeout(up, 60);
+  return true;
+}
+
+/* the current level is the gain when the graph is on, the element when it is not */
+function applyLevel() {
+  if (!audio) return;
+  const nodes = fades.get(audio);
+  if (nodes && actx) {
+    try {
+      const g = nodes.gain.gain;
+      g.cancelScheduledValues(actx.currentTime);
+      g.setTargetAtTime(fadeTarget(), actx.currentTime, 0.015);
+    } catch (e) {}
+    try { audio.volume = 1; audio.muted = false; } catch (e) {}
+    return;
+  }
+  try { audio.volume = state.volume; audio.muted = state.muted; } catch (e) {}
 }
 
 function playTrack(id, opts) {
@@ -2618,10 +2859,7 @@ function playTrack(id, opts) {
   if (!opts.silent) bumpPlay(id);
   showPlayer();
   syncAll();
-  if (audio) {
-    const p = audio.play();
-    if (p && p.catch) p.catch(() => {});
-  }
+  if (audio) startPlayback(audio);
   startLoop();
 }
 
@@ -2635,7 +2873,7 @@ function resume() {
   const t = getTrack(state.trackId);
   if (!t) return;
   if (!audio && t.audioURL) attachAudio(t);
-  if (audio) { const p = audio.play(); if (p && p.catch) p.catch(() => {}); }
+  if (audio) startPlayback(audio);
   state.playing = true;
   showPlayer();
   startLoop();
@@ -2644,9 +2882,19 @@ function resume() {
 
 function pause() {
   state.playing = false;
-  if (audio) { try { audio.pause(); } catch (e) {} }
   stopLoop();
   syncAll();
+  const a = audio;
+  if (!a) return;
+  /* the element stops only after the level has come down, and not at all if
+     something starts it again in the meantime */
+  const req = { at: Date.now() };
+  pauseReqs.set(a, req);
+  fadeOutAudio(a, () => {
+    if (pauseReqs.get(a) !== req) return;
+    pauseReqs.delete(a);
+    try { a.pause(); } catch (e) {}
+  });
 }
 
 function stopLoop() {
@@ -2736,7 +2984,7 @@ function cycleRepeat() {
 function setVolume(v) {
   state.volume = clamp(v, 0, 1);
   if (state.volume > 0) state.muted = false;
-  if (audio) { audio.volume = state.volume; audio.muted = state.muted; }
+  applyLevel();
   saveMeta();
   const lv = $('#lvVolume');
   if (lv) lv.value = Math.round(state.volume * 100);
@@ -2752,7 +3000,7 @@ function syncMuteUI() {
 }
 function toggleMute() {
   state.muted = !state.muted;
-  if (audio) audio.muted = state.muted;
+  applyLevel();
   syncMuteUI();
 }
 
@@ -4008,7 +4256,7 @@ async function saveEdit(data) {
       if (nt.audioURL) attachAudio(nt);
       if (wasPlaying) {
         if (!audio && nt.audioURL) attachAudio(nt);
-        if (audio) { const p = audio.play(); if (p && p.catch) p.catch(() => {}); }
+        startPlayback(audio);
       }
     }
   }
@@ -4500,7 +4748,7 @@ function applyQuery() {
   if (q.get('play') === '1') {
     state.playing = true;
     showPlayer();
-    if (audio) { const p = audio.play(); if (p && p.catch) p.catch(() => {}); }
+    startPlayback(audio);
     startLoop();
   }
   syncAll();
@@ -4532,7 +4780,7 @@ async function init() {
   applyQuery();
 }
 
-init();
+init().then(splashBootDone, (err) => { splashBootDone(); });
 })();
 </script>
 </body>
