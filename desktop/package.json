@@ -1,0 +1,67 @@
+{
+  "name": "enply-desktop",
+  "productName": "ENPLY",
+  "version": "1.0.0",
+  "description": "ENPLY - enp's playlist as a Windows desktop app",
+  "main": "main.js",
+  "author": {
+    "name": "enp",
+    "email": "enp7@users.noreply.github.com"
+  },
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --x64",
+    "pack": "electron-builder --dir"
+  },
+  "devDependencies": {
+    "electron": "^45.4.1",
+    "electron-builder": "^26.18.0"
+  },
+  "build": {
+    "appId": "io.github.e0ruv.enply",
+    "productName": "ENPLY",
+    "copyright": "enp",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "package.json",
+      "build/icon.png"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "ENPLY-${version}-win-x64.exe"
+    },
+    "portable": {
+      "artifactName": "ENPLY-${version}-win-x64.exe",
+      "requestExecutionLevel": "user"
+    },
+    "nsis": {
+      "artifactName": "ENPLY-${version}-win-x64-setup.exe",
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "shortcutName": "ENPLY",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": false
+    }
+  }
+}
