@@ -629,6 +629,21 @@ textarea.input{height:auto;min-height:74px;padding:11px 13px;line-height:1.6;res
 select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23ffffff' stroke-opacity='.5' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
 select.input option{background:#2a1450;color:#fff}
 .input:focus{border-color:rgba(167,139,250,.6);background:rgba(118,118,128,.26);box-shadow:0 0 0 3px rgba(139,92,246,.20)}
+.linkbar{display:flex;flex-direction:column;gap:8px;padding:12px 13px 11px;border-radius:14px;
+  background:linear-gradient(160deg,rgba(167,139,250,.15),rgba(56,189,248,.06));
+  border:1px solid rgba(167,139,250,.28);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.linkbar-head{display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:600;color:rgba(255,255,255,.66);letter-spacing:.01em;cursor:pointer;line-height:1.4}
+.linkbar-head .ic{color:var(--violet-lite);opacity:.95}
+.linkbar-row{display:flex;gap:8px;align-items:stretch}
+.linkbar-row .input{flex:1 1 auto;min-width:0;height:42px;font-size:12.5px}
+.linkbar-row .btn-soft{flex:none;height:42px;padding:0 16px}
+.linkbar-row .btn-soft[aria-busy="true"]{opacity:.62}
+.linkbar .hint{margin:0}
+@media (max-width:520px){
+  .linkbar-row{flex-wrap:wrap}
+  .linkbar-row .input{flex:1 1 100%}
+  .linkbar-row .btn-soft{flex:1 1 100%}
+}
 .form-actions{display:flex;align-items:center;gap:10px;margin-top:2px}
 .btn-soft{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 20px;border-radius:999px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.15);backdrop-filter:blur(18px) saturate(180%);-webkit-backdrop-filter:blur(18px) saturate(180%);box-shadow:inset 0 1px 0 rgba(255,255,255,.16);font-size:13px;font-weight:600;letter-spacing:-.01em;color:rgba(255,255,255,.95);transition:background .22s ease,transform .3s var(--spring),border-color .22s ease}
 .btn-soft:active{transform:scale(.965)}
@@ -1007,6 +1022,7 @@ button:focus-visible,.filter:focus-visible,.chip:focus-visible,.tag:focus-visibl
   <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 4.2l1.9 4.6 4.6 1.9-4.6 1.9L12 17.2l-1.9-4.6L5.5 10.7l4.6-1.9z"/><path d="M18.4 15.8l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/></symbol>
   <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7.7 18.3h9.2a3.9 3.9 0 0 0 .55-7.76A5.55 5.55 0 0 0 6.9 9.6a4.36 4.36 0 0 0 .8 8.7Z"/></symbol>
   <symbol id="i-sync" viewBox="0 0 24 24"><path d="M19.6 12a7.6 7.6 0 0 1-12.98 5.38"/><path d="M4.4 12A7.6 7.6 0 0 1 17.38 6.62"/><path d="M17.1 3.4v3.4h-3.4"/><path d="M6.9 20.6v-3.4h3.4"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10.1 13.9a3.7 3.7 0 0 1 0-5.2l2.5-2.5a3.7 3.7 0 0 1 5.2 5.2l-1.3 1.3"/><path d="M13.9 10.1a3.7 3.7 0 0 1 0 5.2l-2.5 2.5a3.7 3.7 0 0 1-5.2-5.2l1.3-1.3"/></symbol>
 </svg>
 <div id="bg"></div>
 
@@ -1165,6 +1181,14 @@ button:focus-visible,.filter:focus-visible,.chip:focus-visible,.tag:focus-visibl
                 <svg class="ic sm"><use href="#i-pencil"/></svg>
                 <span id="editBannerText"></span>
                 <button type="button" class="edit-x" id="editBannerCancel" aria-label="취소" data-i18n-aria="cancel"><svg class="ic"><use href="#i-x"/></svg></button>
+              </div>
+              <div class="linkbar" id="linkBar">
+                <label class="linkbar-head" for="fLink"><svg class="ic sm"><use href="#i-link"/></svg><span data-i18n="f_link">링크로 정보 불러오기 (YouTube / SoundCloud)</span></label>
+                <div class="linkbar-row">
+                  <input id="fLink" class="input" type="text" inputmode="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="youtu.be · soundcloud.com" data-i18n-ph="ph_link" aria-label="유튜브 또는 사운드클라우드 링크" data-i18n-aria="link_aria">
+                  <button class="btn-soft" type="button" id="linkImport"><svg class="ic sm"><use href="#i-sparkle"/></svg><span id="linkImportLabel" data-i18n="link_import">불러오기</span></button>
+                </div>
+                <p class="hint" data-i18n-html="link_hint">유튜브·사운드클라우드 링크를 붙여넣으면 <b>제목 · 아티스트 · 커버</b>를 자동으로 채워요.</p>
               </div>
               <div class="drop" id="audioDrop" tabindex="0" role="button" aria-label="오디오 파일 선택" data-i18n-aria="admin_drop_title" data-i18n-title="admin_drop_title">
                 <svg class="ic"><use href="#i-upload"/></svg>
@@ -1422,6 +1446,18 @@ const I18N = {
     f_category: '카테고리',
     f_tags: '태그 (쉼표 구분)', ph_tags: '리믹스, Remix',
     f_cover: '커버 이미지 (선택)', cover_aria: '커버 이미지 선택',
+    f_link: '링크로 정보 불러오기 (YouTube / SoundCloud)',
+    ph_link: 'youtu.be · soundcloud.com',
+    link_aria: '유튜브 또는 사운드클라우드 링크',
+    link_import: '불러오기',
+    link_loading: '불러오는 중…',
+    link_hint: '유튜브·사운드클라우드 링크를 붙여넣으면 <b>제목 · 아티스트 · 커버</b>를 자동으로 채워요.',
+    link_cover_name: '링크 커버',
+    toast_link_ok: (title, cover) => '‘' + title + '’ — ' + (cover ? '제목 · 아티스트 · 커버를 채웠어요' : '제목 · 아티스트를 채웠어요'),
+    toast_link_bad: '유튜브나 사운드클라우드 링크를 넣어 주세요',
+    toast_link_no_id: '재생목록이 아니라 영상 링크를 넣어 주세요',
+    toast_link_fail: '링크에서 정보를 가져오지 못했어요. 비공개·삭제된 영상일 수 있어요',
+    toast_link_net: '인터넷 연결을 확인한 뒤 다시 시도해 주세요',
     cover_hint: '사진 보관함 · 카메라에서 선택',
     cover_formats: 'JPG · PNG · WebP · HEIC',
     cover_loading: '이미지 준비 중…',
@@ -1546,6 +1582,18 @@ const I18N = {
     f_category: 'Category',
     f_tags: 'Tags (comma separated)', ph_tags: 'Remix, dance',
     f_cover: 'Cover image (optional)', cover_aria: 'Choose a cover image',
+    f_link: 'Fill from a link (YouTube / SoundCloud)',
+    ph_link: 'youtu.be · soundcloud.com',
+    link_aria: 'YouTube or SoundCloud link',
+    link_import: 'Fill in',
+    link_loading: 'Fetching…',
+    link_hint: 'Paste a YouTube or SoundCloud link and the <b>title · artist · cover</b> fill themselves in.',
+    link_cover_name: 'Link cover',
+    toast_link_ok: (title, cover) => '“' + title + '” — ' + (cover ? 'title, artist, and cover filled in' : 'title and artist filled in'),
+    toast_link_bad: 'Paste a YouTube or SoundCloud link first',
+    toast_link_no_id: 'Use a link to a single video, not a playlist',
+    toast_link_fail: 'Couldn’t read that link — the video may be private or gone',
+    toast_link_net: 'Check your connection and try again',
     cover_hint: 'Choose from Photos or Camera',
     cover_formats: 'JPG · PNG · WebP · HEIC',
     cover_loading: 'Preparing image…',
@@ -1630,7 +1678,20 @@ const I18N = {
 
 const PATCH_NOTES = [
   {
-    ver: 'v1.7.0', date: '2026.11.22', latest: true,
+    ver: 'v1.8.0', date: '2026.11.22', latest: true,
+    ko: [
+      '관리자 곡 추가·수정 폼 위에 “링크로 정보 불러오기”가 생겼어요. 유튜브나 사운드클라우드 링크를 붙여넣고 불러오기를 누르면 제목·아티스트·커버가 한 번에 채워집니다.',
+      '커버는 가장 큰 썸네일을 가져와 정사각형(1:1)으로 가운데를 잘라 담아요. youtu.be, Shorts, music.youtube.com 주소도 모두 알아봅니다.',
+      '제목에 붙은 “(Official Video)”, “[MV]” 같은 꼬리표는 걷어내고, “아티스트 - 곡” 형태면 아티스트 칸도 함께 채워요.'
+    ],
+    en: [
+      'Admin now has “Fill from a link” above the add/edit form. Paste a YouTube or SoundCloud link, press Fill in, and the title, artist, and cover all arrive at once.',
+      'The cover is the largest thumbnail, centre-cropped to a square (1:1). youtu.be, Shorts, and music.youtube.com links are all recognised.',
+      'Packaging such as “(Official Video)” or “[MV]” is stripped from the title, and an “Artist - Track” title fills the artist too.'
+    ]
+  },
+  {
+    ver: 'v1.7.0', date: '2026.11.22',
     ko: [
       '곡 제목이나 아티스트가 칸 너비보다 길면, 잠깐 멈춰 읽을 시간을 준 뒤 옆으로 부드럽게 흐르며 끝까지 보여줘요. 짧으면 가만히 있습니다.',
       '몰입형 풀스크린 플레이어(지금 재생), 모바일 미니 플레이어, 하단 플레이어 바 어디서든 같은 방식으로 동작해요. 화면 폭이 바뀌거나 곡이 바뀌면 넘치는지 다시 계산합니다.',
@@ -3460,6 +3521,285 @@ async function setCoverPicked(file) {
   }
 }
 
+/* --- link import: YouTube / SoundCloud → title, artist, cover ---------------
+   Paste a link in Admin and its public oEmbed metadata fills the form. Both oEmbed
+   endpoints and the artwork CDNs (i.ytimg.com, i*.sndcdn.com) answer with
+   Access-Control-Allow-Origin: *, so the thumbnail can be drawn onto a canvas and
+   stored as a square data URL exactly like a cover picked by hand. If that
+   conversion is blocked the picture is still shown by its own URL, and if the
+   network or the post is gone the form is left untouched with a toast saying why. */
+const LINK_TIMEOUT = 9000;
+const LINK_COVER_SIZE = 1000;
+let linkBusy = false;
+
+function extractLinkish(raw) {
+  const s = String(raw || '').trim();
+  const full = s.match(/https?:\/\/[^\s<>"']+/i);
+  if (full) return full[0];
+  /* a link pasted without its scheme, possibly with words around it */
+  const bare = s.match(/(?:^|[\s(「『"'])((?:www\.|m\.|music\.)?(?:youtu\.be|youtube\.com|soundcloud\.com|on\.soundcloud\.com|snd\.sc)\/[^\s<>"')」』]*)/i);
+  return bare ? bare[1] : s;
+}
+
+function parseMediaLink(raw) {
+  const s = extractLinkish(raw);
+  if (!s) return null;
+  const abs = /^[a-z][a-z0-9+.-]*:\/\//i.test(s) ? s : 'https://' + s.replace(/^\/+/, '');
+  let u;
+  try { u = new URL(abs); } catch (e) { return null; }
+  let host = u.hostname.toLowerCase();
+  if (host.indexOf('www.') === 0) host = host.slice(4);
+  if (host === 'm.youtube.com' || host === 'music.youtube.com') host = 'youtube.com';
+
+  if (host === 'youtu.be') {
+    const id = u.pathname.split('/').filter(Boolean)[0] || '';
+    if (!/^[\w-]{6,}$/.test(id)) return null;
+    return { kind: 'youtube', id: id, page: 'https://www.youtube.com/watch?v=' + id };
+  }
+  if (host === 'youtube.com' || host === 'youtube-nocookie.com') {
+    const v = u.searchParams.get('v');
+    if (v && /^[\w-]{6,}$/.test(v)) return { kind: 'youtube', id: v, page: 'https://www.youtube.com/watch?v=' + v };
+    const m = u.pathname.match(/^\/(?:shorts|embed|live|v)\/([\w-]{6,})/);
+    if (m) return { kind: 'youtube', id: m[1], page: 'https://www.youtube.com/watch?v=' + m[1] };
+    return { kind: 'youtube', id: '', page: '' };   /* a playlist or channel: no single video */
+  }
+  if (host === 'soundcloud.com' || host === 'on.soundcloud.com' || host === 'snd.sc') {
+    return { kind: 'soundcloud', id: '', page: u.href };
+  }
+  return null;
+}
+
+function linkFetchJSON(url) {
+  return new Promise((resolve) => {
+    const ctl = typeof AbortController === 'function' ? new AbortController() : null;
+    let timer = 0;
+    const done = (v) => { if (timer) clearTimeout(timer); resolve(v); };
+    if (ctl) timer = setTimeout(() => { try { ctl.abort(); } catch (e) {} }, LINK_TIMEOUT);
+    const opts = { mode: 'cors', credentials: 'omit', cache: 'no-store', referrerPolicy: 'no-referrer' };
+    if (ctl) opts.signal = ctl.signal;
+    fetch(url, opts).then((res) => (res && res.ok ? res.json() : null))
+      .then((j) => done(j && !j.error && !j.error_code ? j : null))
+      .catch(() => done(null));
+  });
+}
+
+/* oEmbed titles often carry the video's packaging — “(Official Video)”, “[MV]”,
+   “| Official Channel”. Those suffixes are dropped; anything else is left alone. */
+const LINK_NOISE_GROUP = /[\s]*[\(\[]\s*[^()\[\]]{0,60}\b(?:official|officiel|mv|m\/v|video|audio|lyric|lyrics|visuali[sz]er|performance|teaser|trailer|hd|hq|4k|8k|remaster(?:ed)?)\b[^()\[\]]{0,60}[\)\]]\s*$/i;
+const LINK_NOISE_BAR = /\s*[|｜]\s*[^|｜]{0,40}(?:official|mv|m\/v|video|audio|channel|music)\s*$/i;
+const LINK_NOISE_TAIL = /\s+(?:official\s+)?(?:mv|m\/v|official\s+video|official\s+music\s+video|official\s+audio|lyric\s+video|video|audio)\s*$/i;
+
+function cleanMediaTitle(s) {
+  const original = String(s == null ? '' : s).replace(/\s+/g, ' ').trim();
+  let v = original;
+  for (let i = 0; i < 4; i += 1) {
+    const before = v;
+    v = v.replace(LINK_NOISE_GROUP, '').replace(LINK_NOISE_BAR, '').replace(LINK_NOISE_TAIL, '').replace(/\s+/g, ' ').trim();
+    if (v === before) break;
+  }
+  return v || original;
+}
+
+const CHANNEL_NOISE = [/\s*-\s*topic\s*$/i, /\s*vevo\s*$/i, /\s+official\s+artist\s+channel\s*$/i, /\s+official\s*$/i];
+function cleanChannelName(s) {
+  let v = String(s == null ? '' : s).replace(/\s+/g, ' ').trim();
+  for (let i = 0; i < 3; i += 1) {
+    const before = v;
+    CHANNEL_NOISE.forEach((re) => { v = v.replace(re, '').trim(); });
+    if (v === before) break;
+  }
+  return v;
+}
+
+/* “Artist - Title” is the convention for music uploads, so the left side names the
+   artist even when the channel is a label (HYBE LABELS, 1theK). A right side that is
+   only a version word (“- Remastered”, “- Live”) stays part of the title. */
+const DASH_KEEP = /^(?:remaster(?:ed)?|live|acoustic|instrumental|version|edit|mix|demo|radio|extended|remix|sped\s*up|slowed|nightcore|feat\.?|ft\.?|from|original|full)\b/i;
+
+function splitArtistTitle(rawTitle, rawChannel) {
+  let title = cleanMediaTitle(rawTitle);
+  let artist = cleanChannelName(rawChannel);
+  /* SoundCloud writes some titles as “Title by Artist” */
+  const by = title.match(/^(.{1,80}?)\s+by\s+(.{1,60})$/i);
+  if (by && artist && by[2].trim().toLowerCase() === artist.toLowerCase()) title = by[1].trim();
+  /* an “Artist - Title” title fills the artist itself */
+  const dash = title.match(/^(.{1,48}?)\s+[-–—]\s+(.{1,120})$/);
+  if (dash) {
+    const left = cleanChannelName(dash[1]);
+    const right = dash[2].trim();
+    if (left && right && !DASH_KEEP.test(right)) { artist = left; title = right; }
+  }
+  /* a title that repeats the name it was published under: only when an explicit
+     separator follows (“Artist: Track”), so “Artist (뉴진스) ‘Track’” stays whole */
+  if (artist && title.length > artist.length + 1 && title.toLowerCase().indexOf(artist.toLowerCase()) === 0) {
+    const rest = title.slice(artist.length).match(/^\s*[:：|·–—-]\s*(.+)$/);
+    if (rest && rest[1].trim()) title = rest[1].trim();
+  }
+  return { title: title || cleanMediaTitle(rawTitle), artist: artist };
+}
+
+function loadPicture(url, anonymous) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    let done = false;
+    const finish = (v) => { if (done) return; done = true; resolve(v); };
+    if (anonymous) img.crossOrigin = 'anonymous';
+    img.onload = () => finish((img.naturalWidth || img.width) ? img : null);
+    img.onerror = () => finish(null);
+    setTimeout(() => finish(null), LINK_TIMEOUT);
+    img.src = url;
+  });
+}
+
+function squareCoverData(img, letterbox) {
+  const w = img.naturalWidth || img.width || 0;
+  const h = img.naturalHeight || img.height || 0;
+  if (!w || !h) return '';
+  /* hqdefault / sddefault are 4:3 frames with a 16:9 video letterboxed inside;
+     cropping to 9/16 of the width keeps the black bars out of the cover. */
+  const side = Math.max(1, Math.round(letterbox ? Math.min(h, (w * 9) / 16) : Math.min(w, h)));
+  const size = Math.min(LINK_COVER_SIZE, side);
+  const c = document.createElement('canvas');
+  c.width = size; c.height = size;
+  const ctx = c.getContext('2d');
+  if (!ctx) return '';
+  try { ctx.imageSmoothingQuality = 'high'; } catch (e) {}
+  ctx.fillStyle = '#0e0b16';
+  ctx.fillRect(0, 0, size, size);
+  const sx = (w - side) / 2;
+  const sy = (h - side) / 2;
+  try { ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size); } catch (e) { return ''; }
+  const quality = [0.88, 0.8, 0.72];
+  let out = '';
+  for (let i = 0; i < quality.length; i += 1) {
+    try { out = c.toDataURL('image/jpeg', quality[i]); } catch (e) { return ''; }   /* tainted canvas */
+    if (out && out.length <= COVER_SOFT_CHARS) return out;
+  }
+  return out;
+}
+
+async function squareCoverFromUrl(url, letterbox) {
+  const img = await loadPicture(url, true);
+  if (img) {
+    const data = squareCoverData(img, letterbox);
+    if (data) return { data: data };
+    return { data: '', remote: url };            /* canvas refused the pixels: keep the picture */
+  }
+  const loose = await loadPicture(url, false);   /* no CORS: it shows, it cannot be re-encoded */
+  return loose ? { data: '', remote: url } : null;
+}
+
+async function pickCover(candidates) {
+  let remote = null;
+  for (let i = 0; i < candidates.length; i += 1) {
+    const got = await squareCoverFromUrl(candidates[i][0], candidates[i][1]);
+    if (!got) continue;
+    if (got.data) return got;
+    if (!remote) remote = got;
+  }
+  return remote;
+}
+
+function youtubeCover(id) {
+  return pickCover([
+    ['https://i.ytimg.com/vi/' + id + '/maxresdefault.jpg', false],
+    ['https://i.ytimg.com/vi/' + id + '/hq720.jpg', false],
+    ['https://i.ytimg.com/vi/' + id + '/mqdefault.jpg', false],
+    ['https://i.ytimg.com/vi/' + id + '/sddefault.jpg', true],
+    ['https://i.ytimg.com/vi/' + id + '/hqdefault.jpg', true]
+  ]);
+}
+
+function soundcloudCover(thumb) {
+  const u = String(thumb || '').trim();
+  if (!/^https?:\/\//i.test(u)) return Promise.resolve(null);
+  const list = [];
+  const orig = u.replace(/-t\d+x\d+(?=\.(?:jpe?g|png|webp))/i, '-original');
+  if (orig !== u) list.push([orig, false]);
+  list.push([u, false]);
+  return pickCover(list);
+}
+
+function applyLinkCover(got) {
+  const prev = $('#coverPreview');
+  const data = (got && got.data) || '';
+  const remote = (got && got.remote) || '';
+  if (!data && !remote) return '';
+  pendingCover = data || remote;
+  pendingCoverName = tr('link_cover_name');
+  if (prev) { prev.src = pendingCover; prev.hidden = false; }
+  updateCoverHint();
+  return data ? 'image' : 'remote';
+}
+
+async function followSoundcloudShortLink(page) {
+  /* an on.soundcloud.com share link hides the track; its redirect names it */
+  return new Promise((resolve) => {
+    const ctl = typeof AbortController === 'function' ? new AbortController() : null;
+    let timer = 0;
+    const done = (v) => { if (timer) clearTimeout(timer); resolve(v); };
+    if (ctl) timer = setTimeout(() => { try { ctl.abort(); } catch (e) {} }, LINK_TIMEOUT);
+    const opts = { mode: 'cors', credentials: 'omit', cache: 'no-store', redirect: 'follow' };
+    if (ctl) opts.signal = ctl.signal;
+    fetch(page, opts).then((res) => {
+      const real = res && res.url ? String(res.url) : '';
+      done(/^https?:\/\/(?:www\.)?soundcloud\.com\/[^?#]+/i.test(real) && real !== page ? real.split('?')[0] : null);
+    }).catch(() => done(null));
+  });
+}
+
+async function importFromLink() {
+  if (linkBusy) return;
+  const inp = $('#fLink');
+  const btn = $('#linkImport');
+  const lbl = $('#linkImportLabel');
+  const link = parseMediaLink(inp ? inp.value : '');
+  if (!link) {
+    toast(tr('toast_link_bad'), 'alert');
+    if (inp) { try { inp.focus({ preventScroll: true }); } catch (e) { try { inp.focus(); } catch (e2) {} } }
+    return;
+  }
+  if (link.kind === 'youtube' && !link.id) { toast(tr('toast_link_no_id'), 'alert'); return; }
+
+  linkBusy = true;
+  if (btn) { btn.disabled = true; btn.setAttribute('aria-busy', 'true'); }
+  if (lbl) lbl.textContent = tr('link_loading');
+  try {
+    let meta = null;
+    let cover = null;
+    if (link.kind === 'youtube') {
+      meta = await linkFetchJSON('https://www.youtube.com/oembed?format=json&url=' + encodeURIComponent(link.page));
+      if (!meta) meta = await linkFetchJSON('https://noembed.com/embed?url=' + encodeURIComponent(link.page));
+      if (!meta) { toast(tr(navigator.onLine === false ? 'toast_link_net' : 'toast_link_fail'), 'alert'); return; }
+      cover = await youtubeCover(link.id);
+    } else {
+      meta = await linkFetchJSON('https://soundcloud.com/oembed?format=json&url=' + encodeURIComponent(link.page));
+      if (!meta) meta = await linkFetchJSON('https://noembed.com/embed?url=' + encodeURIComponent(link.page));
+      if (!meta && /^https?:\/\/(?:www\.)?on\.soundcloud\.com\//i.test(link.page)) {
+        const real = await followSoundcloudShortLink(link.page);
+        if (real) {
+          meta = await linkFetchJSON('https://soundcloud.com/oembed?format=json&url=' + encodeURIComponent(real));
+          if (!meta) meta = await linkFetchJSON('https://noembed.com/embed?url=' + encodeURIComponent(real));
+        }
+      }
+      if (!meta) { toast(tr(navigator.onLine === false ? 'toast_link_net' : 'toast_link_fail'), 'alert'); return; }
+      cover = await soundcloudCover(meta.thumbnail_url);
+    }
+
+    const names = splitArtistTitle(meta.title, meta.author_name);
+    const titleEl = $('#fTitle');
+    const artistEl = $('#fArtist');
+    if (titleEl) titleEl.value = names.title;
+    if (artistEl) artistEl.value = names.artist || '';
+    const coverKind = applyLinkCover(cover);
+    toast(tr('toast_link_ok', names.title, !!coverKind));
+  } finally {
+    linkBusy = false;
+    if (btn) { btn.disabled = false; btn.removeAttribute('aria-busy'); }
+    if (lbl) lbl.textContent = tr('link_import');
+  }
+}
+
 function probeDuration(file) {
   return new Promise((resolve) => {
     const a = new Audio();
@@ -3979,6 +4319,14 @@ function bindEvents() {
 
   $('#uploadForm').addEventListener('submit', handleUpload);
   $('#resetForm').addEventListener('click', resetUploadForm);
+  const linkImport = $('#linkImport');
+  if (linkImport) linkImport.addEventListener('click', importFromLink);
+  const linkInput = $('#fLink');
+  if (linkInput) linkInput.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();        /* Enter here fetches the link, it does not submit the form */
+    importFromLink();
+  });
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && editingId) { e.preventDefault(); cancelEdit(); return; }
