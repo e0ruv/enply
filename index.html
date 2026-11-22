@@ -2656,6 +2656,7 @@ function destroyAudio() {
   if (!audio) return;
   const old = audio;
   audio = null;
+  splashBufferEnd();                // a veil for the old element must not linger
   try { old.onended = null; old.onloadedmetadata = null; } catch (e) {}
   fadeOutAudio(old, () => {
     try { old.pause(); } catch (e) {}
@@ -2678,12 +2679,13 @@ function attachAudio(t) {
     }
   };
   a.onended = () => { if (audio === a) onEnded(); };
-  a.addEventListener('waiting', splashBufferStart);
-  a.addEventListener('stalled', splashBufferStart);
-  a.addEventListener('playing', splashBufferEnd);
-  a.addEventListener('canplay', splashBufferEnd);
-  a.addEventListener('pause', splashBufferEnd);
-  a.addEventListener('error', splashBufferEnd);
+  /* only the element that is on the player now may move the buffering veil */
+  a.addEventListener('waiting', () => { if (audio === a) splashBufferStart(); });
+  a.addEventListener('stalled', () => { if (audio === a) splashBufferStart(); });
+  a.addEventListener('playing', () => { if (audio === a) splashBufferEnd(); });
+  a.addEventListener('canplay', () => { if (audio === a) splashBufferEnd(); });
+  a.addEventListener('pause', () => { if (audio === a) splashBufferEnd(); });
+  a.addEventListener('error', () => { if (audio === a) splashBufferEnd(); });
 }
 
 /* ---------- gentle fades ----------
