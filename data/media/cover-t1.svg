@@ -1,0 +1,17 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+<defs> <linearGradient id="ta" x1="0" y1="0" x2=".7" y2="1"><stop offset="0" stop-color="#050d16"/><stop offset=".48" stop-color="#0f2438"/><stop offset="1" stop-color="#03080d"/></linearGradient> <radialGradient id="tb" cx=".5" cy=".22" r=".66"><stop offset="0" stop-color="#8fdcf7" stop-opacity=".5"/><stop offset="1" stop-color="#8fdcf7" stop-opacity="0"/></radialGradient> <linearGradient id="tc" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset=".26" stop-color="#e6faff"/><stop offset=".44" stop-color="#5c9fc0"/><stop offset=".52" stop-color="#ffffff"/><stop offset=".7" stop-color="#9dcfe4"/><stop offset=".88" stop-color="#e8fbff"/><stop offset="1" stop-color="#ffffff"/></linearGradient> <linearGradient id="td" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe9f7" stop-opacity=".0"/><stop offset=".35" stop-color="#bfe9f7" stop-opacity=".22"/><stop offset="1" stop-color="#bfe9f7" stop-opacity="0"/></linearGradient> <filter id="tf"><feGaussianBlur stdDeviation="14"/></filter> <filter id="tg"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="3"/><feColorMatrix type="saturate" values="0"/></filter>
+</defs>
+<rect width="640" height="640" fill="url(#ta)"/>
+<rect width="640" height="640" fill="url(#tb)"/>
+<g opacity=".8"> <path d="M120 0 L182 0 L208 640 L96 640 Z" fill="url(#td)"/> <path d="M268 0 L306 0 L330 640 L232 640 Z" fill="url(#td)"/> <path d="M430 0 L492 0 L516 640 L404 640 Z" fill="url(#td)"/> <path d="M556 0 L584 0 L598 640 L534 640 Z" fill="url(#td)"/>
+</g>
+<g filter="url(#tf)" opacity=".5"><ellipse cx="320" cy="250" rx="180" ry="120" fill="#7fd4ef" opacity=".35"/><ellipse cx="320" cy="560" rx="200" ry="60" fill="#5eb6d6" opacity=".22"/></g>
+<g opacity=".5"> <path d="M96 640 C90 520 108 470 132 452 C122 430 120 410 126 392 C136 362 166 350 190 362 C216 376 224 408 210 434 C200 452 184 462 168 466 C200 486 214 530 216 640 Z" fill="#0a1a26"/> <path d="M254 640 C248 500 268 440 296 420 C284 396 284 370 296 350 C312 322 348 316 372 336 C398 358 400 394 380 416 C364 434 340 440 320 436 C356 460 372 520 374 640 Z" fill="#0c1e2b"/> <path d="M424 640 C418 512 436 458 462 438 C450 416 450 394 460 376 C476 348 512 342 536 364 C560 386 560 422 540 442 C524 458 502 464 484 460 C514 484 528 540 530 640 Z" fill="#0a1a26"/>
+</g>
+<text x="320" y="352" text-anchor="middle" font-family="Georgia,'Times New Roman',serif" font-size="126" font-style="italic" letter-spacing="1" fill="url(#tc)" stroke="#04121c" stroke-opacity=".5" stroke-width="1.6">thirsty</text>
+<text x="320" y="404" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="12" letter-spacing="9" fill="#cdefff" fill-opacity=".55">FUTURE HOUSE REMIX</text>
+<g fill="#e8f9ff" opacity=".9"><path d="M568 108 l4 12 12 4 -12 4 -4 12 -4 -12 -12 -4 12 -4z"/><path d="M84 244 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z"/><circle cx="488" cy="252" r="2.2"/><circle cx="118" cy="124" r="1.6"/></g>
+<g opacity=".12"><rect width="640" height="640" filter="url(#tg)"/></g>
+<rect x="14" y="14" width="612" height="612" fill="none" stroke="#cdefff" stroke-opacity=".16"/>
+</svg>

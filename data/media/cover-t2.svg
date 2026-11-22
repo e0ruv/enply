@@ -1,0 +1,15 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+<defs> <linearGradient id="ca" x1="0" y1="0" x2=".85" y2="1"><stop offset="0" stop-color="#fbe2c4"/><stop offset=".4" stop-color="#e6a87f"/><stop offset=".76" stop-color="#a85c45"/><stop offset="1" stop-color="#4f2721"/></linearGradient> <radialGradient id="cb" cx=".66" cy=".28" r=".56"><stop offset="0" stop-color="#fff6e2" stop-opacity=".95"/><stop offset="1" stop-color="#ffe9c4" stop-opacity="0"/></radialGradient> <linearGradient id="cc" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f0b990" stop-opacity=".9"/><stop offset=".5" stop-color="#5d3026"/><stop offset="1" stop-color="#241210"/></linearGradient> <linearGradient id="cd" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3e211b"/><stop offset="1" stop-color="#160b0a"/></linearGradient> <filter id="cf"><feGaussianBlur stdDeviation="30"/></filter> <filter id="cf2"><feGaussianBlur stdDeviation="5"/></filter> <filter id="cg"><feTurbulence type="fractalNoise" baseFrequency=".7" numOctaves="3"/><feColorMatrix type="saturate" values="0"/></filter>
+</defs>
+<rect width="640" height="640" fill="url(#ca)"/>
+<rect width="640" height="640" fill="url(#cb)"/>
+<g filter="url(#cf)" opacity=".6"> <circle cx="128" cy="128" r="74" fill="#ffe7bd" opacity=".55"/> <circle cx="492" cy="112" r="44" fill="#fff2d6" opacity=".55"/> <circle cx="228" cy="292" r="30" fill="#ffd9a8" opacity=".4"/> <circle cx="572" cy="300" r="56" fill="#ffe0b6" opacity=".35"/> <circle cx="86" cy="392" r="46" fill="#ffcf9c" opacity=".3"/>
+</g>
+<g transform="translate(196 176)"> <path d="M118 464 C114 366 146 300 202 268 C172 246 156 212 160 176 C166 108 216 68 268 74 C324 80 360 128 352 186 C346 232 318 262 284 276 C352 306 396 362 402 464 Z" fill="url(#cd)" opacity=".96"/> <path d="M266 74 C318 80 356 126 350 184 C344 226 320 256 292 272 C306 244 312 212 308 182 C300 126 268 96 232 100 C218 102 206 110 198 120 C210 96 236 78 266 74 Z" fill="url(#cc)" opacity=".55"/> <path d="M176 168 C180 104 224 70 272 76" fill="none" stroke="#ffd9a8" stroke-opacity=".55" stroke-width="6" filter="url(#cf2)"/> <path d="M362 200 C374 232 380 262 378 292" fill="none" stroke="#ffcaa0" stroke-opacity=".28" stroke-width="5" filter="url(#cf2)"/>
+</g>
+<text x="46" y="500" font-family="Georgia,'Times New Roman',serif" font-size="66" font-style="italic" fill="#fff8ee" letter-spacing=".5">Cool With You</text>
+<text x="48" y="540" font-family="Helvetica,Arial,sans-serif" font-size="13" letter-spacing="5" fill="#ffe6c8" opacity=".78">FUTURE BASS REMIX</text>
+<text x="48" y="84" font-family="Helvetica,Arial,sans-serif" font-size="13" letter-spacing="4" fill="#fff4e2" opacity=".6">NEWJEANS</text>
+<g opacity=".14"><rect width="640" height="640" filter="url(#cg)"/></g>
+</svg>

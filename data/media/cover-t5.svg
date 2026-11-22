@@ -1,0 +1,14 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+<defs> <linearGradient id="fa" x1="0" y1="0" x2=".85" y2="1"><stop offset="0" stop-color="#f8efe4"/><stop offset=".5" stop-color="#eedbca"/><stop offset="1" stop-color="#d3b5a0"/></linearGradient> <linearGradient id="fb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4d2c27"/><stop offset="1" stop-color="#231311"/></linearGradient> <linearGradient id="fc" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f3c3b8" stop-opacity=".85"/><stop offset="1" stop-color="#6a3a33" stop-opacity="0"/></linearGradient> <filter id="ff"><feGaussianBlur stdDeviation="18"/></filter> <filter id="fg"><feTurbulence type="fractalNoise" baseFrequency=".65" numOctaves="3"/><feColorMatrix type="saturate" values="0"/></filter>
+</defs>
+<rect width="640" height="640" fill="url(#fa)"/>
+<g filter="url(#ff)" opacity=".55"><circle cx="512" cy="168" r="116" fill="#f3a9b6" opacity=".55"/><circle cx="112" cy="540" r="130" fill="#e8b49f" opacity=".45"/></g>
+<text x="312" y="392" text-anchor="middle" font-family="Helvetica,Arial,sans-serif" font-size="268" font-weight="800" letter-spacing="-14" fill="#efd6c7" stroke="#e25670" stroke-width="7" stroke-opacity=".9">404</text>
+<g transform="translate(322 196)"> <path d="M118 444 C114 356 148 300 200 274 C170 252 154 218 158 184 C164 118 212 78 262 84 C316 90 350 136 344 192 C338 236 312 264 280 278 C346 308 388 362 394 444 Z" fill="url(#fb)" opacity=".94"/> <path d="M260 84 C312 90 348 134 342 190 C336 230 314 258 288 272 C300 246 306 216 302 188 C294 134 264 104 230 108 C216 110 204 118 196 128 C208 104 232 88 260 84 Z" fill="url(#fc)" opacity=".55"/> <path d="M176 176 C180 118 218 82 262 86" fill="none" stroke="#f7c7b4" stroke-opacity=".6" stroke-width="5"/>
+</g>
+<text x="42" y="88" font-family="Georgia,'Times New Roman',serif" font-size="34" font-style="italic" fill="#a8535f">New Era</text>
+<text x="42" y="600" font-family="Helvetica,Arial,sans-serif" font-size="12" letter-spacing="5" fill="#8a5f58" opacity=".85">KIIIKIII · FUTURE HOUSE REMIX</text>
+<rect x="42" y="112" width="46" height="3" fill="#e25670" opacity=".8"/>
+<g opacity=".15"><rect width="640" height="640" filter="url(#fg)"/></g>
+</svg>
