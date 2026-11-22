@@ -2,7 +2,7 @@
   "version": 1,
   "app": "ENPLY",
   "repo": "e0ruv/enply",
-  "updatedAt": "2026-11-22T09:30:00.000Z",
+  "updatedAt": "2026-11-22T09:58:23.329Z",
   "tracks": [
     {
       "id": "t1",
@@ -16,6 +16,7 @@
       ],
       "duration": 194,
       "plays": 55,
+      "cover": "./data/media/cover-t1.svg",
       "lyrics": [
         [
           6.5,
@@ -146,8 +147,8 @@
           "Thirsty for you"
         ]
       ],
-      "cover": "./data/media/cover-t1.svg",
-      "demo": true
+      "demo": true,
+      "updatedAt": "2026-11-22T09:58:23.329Z"
     },
     {
       "id": "t2",
@@ -161,6 +162,7 @@
       ],
       "duration": 157,
       "plays": 28,
+      "cover": "./data/media/cover-t2.svg",
       "lyrics": [
         [
           5,
@@ -247,8 +249,8 @@
           "Cool with you"
         ]
       ],
-      "cover": "./data/media/cover-t2.svg",
-      "demo": true
+      "demo": true,
+      "updatedAt": "2026-11-22T09:58:23.329Z"
     },
     {
       "id": "t3",
@@ -262,6 +264,7 @@
       ],
       "duration": 152,
       "plays": 19,
+      "cover": "./data/media/cover-t3.svg",
       "lyrics": [
         [
           4.5,
@@ -356,8 +359,8 @@
           "이 밤이 가기 전에"
         ]
       ],
-      "cover": "./data/media/cover-t3.svg",
-      "demo": true
+      "demo": true,
+      "updatedAt": "2026-11-22T09:58:23.329Z"
     },
     {
       "id": "t4",
@@ -371,6 +374,7 @@
       ],
       "duration": 107,
       "plays": 18,
+      "cover": "./data/media/cover-t4.svg",
       "lyrics": [
         [
           3.5,
@@ -449,173 +453,26 @@
           "자석처럼 끌려가"
         ]
       ],
-      "cover": "./data/media/cover-t4.svg",
-      "demo": true
+      "demo": true,
+      "updatedAt": "2026-11-22T09:58:23.329Z"
     },
     {
       "id": "t5",
       "title": "404 (New Era) (future house remix)",
       "artist": "KiiiKiii",
-      "album": "404 (New Era) - Single",
+      "album": "404 (New Era) (future house remix) - Single",
       "category": "리믹스",
       "tags": [
         "리믹스",
         "Remix"
       ],
-      "duration": 600,
+      "duration": 186,
       "plays": 12,
-      "lyrics": [
-        [
-          7,
-          "New era, new era"
-        ],
-        [
-          15,
-          "찾을 수 없는 마음"
-        ],
-        [
-          23,
-          "404, not found"
-        ],
-        [
-          31,
-          "너를 검색해 봐도"
-        ],
-        [
-          39,
-          "빈 화면만 남아"
-        ],
-        [
-          47,
-          "New era, new era"
-        ],
-        [
-          55,
-          "페이지를 넘겨 봐도"
-        ],
-        [
-          63,
-          "네 이름은 없어"
-        ],
-        [
-          71,
-          "404, not found"
-        ],
-        [
-          80,
-          "다시 불러와 줘"
-        ],
-        [
-          89,
-          "이 마음의 주소"
-        ],
-        [
-          98,
-          "New era"
-        ],
-        [
-          110,
-          "처음부터 다시"
-        ],
-        [
-          122,
-          "우리 다른 시대"
-        ],
-        [
-          134,
-          "New era, new era"
-        ],
-        [
-          146,
-          "404, not found"
-        ],
-        [
-          158,
-          "페이지를 넘겨 봐도"
-        ],
-        [
-          170,
-          "네 이름은 없어"
-        ],
-        [
-          182,
-          "다시 불러와 줘"
-        ],
-        [
-          194,
-          "이 마음의 주소"
-        ],
-        [
-          206,
-          "New era"
-        ],
-        [
-          230,
-          "멀어지는 너를"
-        ],
-        [
-          254,
-          "자꾸 다시 찾아"
-        ],
-        [
-          278,
-          "New era, new era"
-        ],
-        [
-          302,
-          "404, not found"
-        ],
-        [
-          326,
-          "지워진 화면 위에"
-        ],
-        [
-          350,
-          "나 혼자 서 있어"
-        ],
-        [
-          374,
-          "New era"
-        ],
-        [
-          398,
-          "찾을 수 없는 마음"
-        ],
-        [
-          422,
-          "404, not found"
-        ],
-        [
-          446,
-          "다시 불러와 줘"
-        ],
-        [
-          470,
-          "이 마음의 주소"
-        ],
-        [
-          494,
-          "New era, new era"
-        ],
-        [
-          518,
-          "404, not found"
-        ],
-        [
-          542,
-          "나 혼자 남아"
-        ],
-        [
-          566,
-          "New era"
-        ],
-        [
-          590,
-          "New era, new era"
-        ]
-      ],
-      "cover": "./data/media/cover-t5.svg",
-      "demo": true
+      "cover": "./data/media/cover-t5-1795341497950.jpg",
+      "lyrics": [],
+      "audio": "./data/media/audio-t5-1795341499534.mp3",
+      "demo": true,
+      "updatedAt": "2026-11-22T09:58:23.329Z"
     }
   ]
 }
