@@ -223,11 +223,6 @@ img{display:block}
 }
 .card-play .ic{width:16px;height:16px}
 .card:hover .card-play,.card.is-current .card-play,.card.playing .card-play{opacity:1;transform:none}
-.card-badge{
-  position:absolute;left:7px;top:7px;height:22px;display:flex;align-items:center;gap:4px;padding:0 9px;border-radius:999px;
-  font-size:10.5px;font-weight:700;letter-spacing:.01em;color:#fff;
-  background:linear-gradient(135deg,#f472b6,#ec4899);box-shadow:0 6px 16px rgba(236,72,153,.45);
-}
 .card-title-row{display:flex;align-items:flex-start;gap:6px;margin-top:10px}
 .card-title{font-size:13.5px;font-weight:600;letter-spacing:-.005em;line-height:1.35;flex:1;min-width:0;
   display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
@@ -1033,7 +1028,6 @@ const I18N = {
     prev_slide: '이전 슬라이드', next_slide: '다음 슬라이드',
     dot_aria: (n) => n + '번째 트랙',
     cover_alt: (s) => s + ' 커버',
-    badge_latest: '1위 · 최신싱',
     empty_cat_title: '이 카테고리에는 트랙이 없어요',
     empty_cat_sub: '관리자에서 새 트랙을 올리거나 전체 목록을 확인해 보세요.',
     view_all_tracks: '전체 트랙 보기',
@@ -1115,7 +1109,6 @@ const I18N = {
     prev_slide: 'Previous slide', next_slide: 'Next slide',
     dot_aria: (n) => 'Track ' + n,
     cover_alt: (s) => s + ' cover',
-    badge_latest: '#1 · Latest',
     empty_cat_title: 'No tracks in this category',
     empty_cat_sub: 'Upload a new track in Admin, or check the full list.',
     view_all_tracks: 'View all tracks',
@@ -1255,7 +1248,6 @@ function tagLabels(tags) {
   (tags || []).forEach((x) => { const v = catName(x); if (out.indexOf(v) < 0) out.push(v); });
   return out;
 }
-function badgeName(b) { return b === '1위 · 최신싱' ? tr('badge_latest') : (b || ''); }
 function allTags() {
   const out = [], seen = {};
   allTracks().forEach((t) => (t.tags || []).forEach((x) => {
@@ -1486,7 +1478,7 @@ const DEMO_TRACKS = [
   {
     id: 't1', title: 'Thirsty (future house remix)', artist: 'aespa',
     album: 'Thirsty (future house remix) - Single', category: '리믹스', tags: ['리믹스', 'Remix'],
-    duration: 194, plays: 55, cover: coverThirsty, badge: '1위 · 최신싱', demo: true,
+    duration: 194, plays: 55, cover: coverThirsty, demo: true,
     lyrics: [
       [6.5, "You're the one I keep on thinking of"], [12.9, 'So tell me,'], [16.4, 'What you wanna wanna do boy?'],
       [22.4, '너는 마실수록 Thirsty'], [27.1, '분명 가득한데 Thirsty'], [31.6, 'Yeah, I got you boy'],
@@ -1882,7 +1874,6 @@ function cardHTML(t) {
   return '<article class="card' + (cur ? ' is-current' : '') + (cur && state.playing ? ' playing' : '') + '" data-id="' + t.id + '" data-act="detail" tabindex="0">' +
     '<div class="card-art">' +
       '<img src="' + t.cover + '" alt="' + esc(tr('cover_alt', t.title)) + '" loading="lazy">' +
-      (t.badge ? '<span class="card-badge">' + esc(badgeName(t.badge)) + '</span>' : '') +
       '<button class="card-play" data-act="play" data-id="' + t.id + '" aria-label="' + tr('play') + '"><svg class="ic fill"><use href="#' + (cur && state.playing ? 'i-pause' : 'i-play') + '"/></svg></button>' +
     '</div>' +
     '<div class="card-title-row"><div class="card-title">' + esc(t.title) + '</div>' +
