@@ -913,68 +913,6 @@ button:focus-visible,.filter:focus-visible,.chip:focus-visible,.tag:focus-visibl
   .lv-transport .pbtn.big{width:62px;height:62px}
   .lv-transport .pbtn.big .ic{width:25px;height:25px}
 }
-
-/* ============ 15. liquid-glass tap feedback (mobile) ============ */
-@keyframes lvPlayPop{0%{transform:scale(.965)}44%{transform:scale(1.038)}72%{transform:scale(.996)}100%{transform:scale(1)}}
-@media (max-width:980px){
-  /* press-in snaps in quickly, release springs back with a light overshoot */
-  .lv .lv-transport .pbtn,
-  .lv .lv-round,
-  .lv .lv-meta-btns .heart,
-  .lv .mact,
-  .lv .lv-mlyr-play,
-  .nav .nav-item{
-    -webkit-tap-highlight-color:transparent;
-    touch-action:manipulation;
-    transform-origin:50% 50%;
-    transition:transform .5s cubic-bezier(.2,1.34,.38,1),
-      background .24s ease,border-color .24s ease,color .18s ease,box-shadow .3s ease,filter .2s ease;
-  }
-  .lv .lv-transport .pbtn:active,
-  .lv .lv-round:active,
-  .lv .lv-meta-btns .heart:active,
-  .lv .mact:active,
-  .lv .lv-mlyr-play:active,
-  .nav .nav-item:active{
-    transition:transform .11s ease-out,
-      background .24s ease,border-color .24s ease,color .18s ease,box-shadow .3s ease,filter .2s ease;
-    transform:scale(.945);
-  }
-  .lv .lv-transport .pbtn:not(.big):active{transform:scale(.93);background:rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.18)}
-  .lv .lv-transport .pbtn.big:active{transform:scale(.955)}
-  .lv .lv-round:active{transform:scale(.925)}
-  .lv .lv-meta-btns .heart:active{transform:scale(.93)}
-  .lv .lv-mlyr-play:active{transform:scale(.94)}
-  .lv .mact:active{transform:scale(.965)}
-  .nav .nav-item:active{transform:scale(.955)}
-
-  /* a short glass glint across the frosted surfaces while pressed */
-  .lv .lv-transport .pbtn.big,
-  .lv .lv-round,
-  .lv .lv-meta-btns .heart,
-  .lv .mact,
-  .lv .lv-mlyr-play{position:relative}
-  .lv .lv-transport .pbtn.big::after,
-  .lv .lv-round::after,
-  .lv .lv-meta-btns .heart::after,
-  .lv .mact::after,
-  .lv .lv-mlyr-play::after{
-    content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-    background:radial-gradient(118% 92% at 50% 2%,rgba(255,255,255,.66),rgba(255,255,255,.18) 44%,rgba(255,255,255,0) 72%);
-    opacity:0;transition:opacity .3s ease;
-  }
-  .lv .lv-transport .pbtn.big:active::after,
-  .lv .lv-round:active::after,
-  .lv .lv-meta-btns .heart:active::after,
-  .lv .mact:active::after,
-  .lv .lv-mlyr-play:active::after{opacity:.5;transition:opacity .05s ease}
-
-  /* play / pause flips get a light pop so the state change reads in the hand */
-  .lv .lv-transport .pbtn.big.is-pop{animation:lvPlayPop .42s cubic-bezier(.22,1.4,.36,1)}
-  .lv .lv-mlyr-play.is-pop{animation:lvPlayPop .4s cubic-bezier(.22,1.4,.36,1)}
-  .lv .lv-transport .pbtn.big.is-pop::after,
-  .lv .lv-mlyr-play.is-pop::after{opacity:.34;transition:opacity .06s ease-out}
-}
 </style>
 </head>
 <body>
@@ -1964,7 +1902,6 @@ let trackCache = null;
 const editAudioURLs = {};
 let audio = null;
 let raf = 0, lastTs = 0;
-let lvPlayShown = null;
 const ADMIN_PASSCODE = '6160';
 let adminUnlocked = false;
 let editingId = null;
@@ -2429,15 +2366,6 @@ function renderPlayer() {
   $('#pArtist').textContent = t.artist;
 }
 
-function popLvPlayBtn(el) {
-  if (!el) return;
-  el.classList.remove('is-pop');
-  void el.offsetWidth;
-  el.classList.add('is-pop');
-  el.addEventListener('animationend', function () { el.classList.remove('is-pop'); }, { once: true });
-  setTimeout(function () { el.classList.remove('is-pop'); }, 700);
-}
-
 function syncPlayUI() {
   const playing = state.playing;
   $('#playIcon').querySelector('use').setAttribute('href', playing ? '#i-pause' : '#i-play');
@@ -2448,11 +2376,6 @@ function syncPlayUI() {
   $('#headEq').classList.toggle('is-paused', !playing);
   const lvView = $('#lyricsView');
   if (lvView) lvView.classList.toggle('is-playing', playing);
-  if (lvView && lvView.classList.contains('is-open') && mobileNarrow() && lvPlayShown !== null && lvPlayShown !== playing) {
-    popLvPlayBtn($('#lvPlay'));
-    popLvPlayBtn($('#lvMHeadPlay'));
-  }
-  lvPlayShown = playing;
   $('#btnShuffle').classList.toggle('is-on', state.shuffle);
   $('#lvShuffle').classList.toggle('is-on', state.shuffle);
   $('#btnRepeat').classList.toggle('is-on', state.repeat !== 'off');
@@ -3297,9 +3220,6 @@ async function deleteTrack(id) {
 
 /* ===================== 10. events ===================== */
 function bindEvents() {
-  /* iOS only paints :active on touch while a touchstart listener exists */
-  document.addEventListener('touchstart', function () {}, { passive: true });
-
   $('#nav').addEventListener('click', (e) => {
     const b = e.target.closest('.nav-item');
     if (!b) return;
