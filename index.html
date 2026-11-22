@@ -850,7 +850,7 @@ button:focus-visible,.filter:focus-visible,.chip:focus-visible,.tag:focus-visibl
   .pbar{margin-top:6px}
   .pright .pbtn.round{margin-left:0;background:rgba(255,255,255,.10)}
 
-  /* full screen now playing — Spotify / Apple Music style */
+  /* full screen now playing — immersive art / lyrics player */
   .lv{height:100vh;height:100dvh}
   .lv-bg{inset:-22%;filter:blur(70px) saturate(150%) brightness(.58);opacity:.44}
   .lv-tint{background:linear-gradient(180deg,rgba(8,4,18,.30) 0%,rgba(8,4,18,.05) 32%,rgba(9,4,20,.74) 82%,rgba(8,4,18,.95) 100%)}
@@ -952,6 +952,19 @@ button:focus-visible,.filter:focus-visible,.chip:focus-visible,.tag:focus-visibl
   .lv-transport .pbtn.big{width:62px;height:62px}
   .lv-transport .pbtn.big .ic{width:25px;height:25px}
 }
+
+/* ============ 14. long titles: marquee ============ */
+/* A title that fits its box is left exactly as it was. One that does not fit gets
+   .is-on: the text runs on a single clipped line, the two ends fade softly, and
+   the movement itself is a transform-only animation (added from JS, one keyframe
+   set per active line) so the compositor does the work and nothing reflows. */
+.mq{display:block;position:relative;min-width:0;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:clip}
+.mq-in{display:inline-block;white-space:nowrap;max-width:none;transform:translate3d(0,0,0)}
+.mq.is-on{
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 10px,#000 calc(100% - 10px),transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0,#000 10px,#000 calc(100% - 10px),transparent 100%);
+}
+.mq.is-on .mq-in{will-change:transform;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 </style>
 </head>
 <body>
@@ -1617,7 +1630,20 @@ const I18N = {
 
 const PATCH_NOTES = [
   {
-    ver: 'v1.6.0', date: '2026.11.22', latest: true,
+    ver: 'v1.7.0', date: '2026.11.22', latest: true,
+    ko: [
+      '곡 제목이나 아티스트가 칸 너비보다 길면, 잠깐 멈춰 읽을 시간을 준 뒤 옆으로 부드럽게 흐르며 끝까지 보여줘요. 짧으면 가만히 있습니다.',
+      '몰입형 풀스크린 플레이어(지금 재생), 모바일 미니 플레이어, 하단 플레이어 바 어디서든 같은 방식으로 동작해요. 화면 폭이 바뀌거나 곡이 바뀌면 넘치는지 다시 계산합니다.',
+      '양 끝은 살짝 흐려져 잘린 글자가 어색하지 않고, 움직임은 화면 배치를 다시 계산하지 않는 방식이라 아이폰에서도 끊기지 않아요.'
+    ],
+    en: [
+      'When a track title or artist is longer than its space, it holds for a beat, then glides sideways so the whole line can be read. Short ones stay perfectly still.',
+      'The same behaviour in the immersive full-screen player, the mobile mini player, and the bottom player bar — recalculated on resize and whenever the track changes.',
+      'Both ends fade softly where the line is cut, and the motion never re-lays-out the page, so it stays smooth on iPhone.'
+    ]
+  },
+  {
+    ver: 'v1.6.0', date: '2026.11.22',
     ko: [
       '앨범 커버가 재생·일시정지에 따라 커지고 작아지던 움직임과, 버튼을 누를 때의 모션을 걷어냈어요. 아이폰에서 훨씬 가볍게 느껴집니다.',
       '트랙 정보를 data/tracks.json 파일로 분리했어요. 이제 사이트 코드만 새로 올려도 곡·커버·가사는 그대로 남습니다.',
@@ -1634,12 +1660,12 @@ const PATCH_NOTES = [
   {
     ver: 'v1.5.0', date: '2026.11.22',
     ko: [
-      '모바일 지금 재생 화면을 스포티파이 · 애플뮤직처럼 다시 만들었어요. 큰 앨범 아트와 시간 바, 큼직한 재생 버튼, 하단 가사 · 재생 목록 버튼이 들어갔습니다.',
+      '모바일 지금 재생 화면을 몰입형 풀스크린 플레이어로 다시 만들었어요. 큰 앨범 아트와 시간 바, 큼직한 재생 버튼, 하단 가사 · 재생 목록 버튼이 들어갔습니다.',
       '가사를 누르면 화면 전체가 몰입형 가사 모드로 바뀝니다. 커버 · 제목 · 재생 버튼이 있는 헤더와 함께 현재 가사가 부드럽게 가운데로 따라오고, 위아래 가사는 흐려집니다. 데스크톱 가사도 같은 느낌으로 다듬었어요.',
       '관리자에서 모든 트랙의 제목, 아티스트, 카테고리, 태그, 커버, 가사를 수정할 수 있게 됐어요. 오디오를 새로 고르지 않으면 기존 파일을 그대로 씁니다.'
     ],
     en: [
-      'Rebuilt the mobile Now Playing screen in a Spotify / Apple Music style: large album art, a smooth seek bar, big transport buttons, and a bottom Lyrics · Queue bar.',
+      'Rebuilt the mobile Now Playing screen as an immersive full-screen player: large album art, a smooth seek bar, big transport buttons, and a bottom Lyrics · Queue bar.',
       'Tap Lyrics and the screen turns into immersive lyrics: a compact cover · title · play header, with the current line easing to the center while the lines above and below fade away. The desktop lyrics got the same treatment.',
       'Admin now edits every track — title, artist, category, tags, cover, and lyrics. Leave the audio empty to keep the current file.'
     ]
@@ -1776,6 +1802,7 @@ function setLang(next) {
   } catch (e) {}
   applyStatic();
   syncAll();
+  MQ.schedule();
   if (state.view === 'explore') renderExplore();
   else if (state.view === 'library') renderLibrary();
   else if (state.view === 'admin') renderAdmin();
@@ -2784,8 +2811,8 @@ function renderRail() {
   if (t) {
     $('#railArt').src = t.cover;
     $('#railArt').alt = t.title;
-    $('#railTitle').textContent = t.title;
-    $('#railArtist').textContent = t.artist;
+    MQ.set($('#railTitle'), t.title);
+    MQ.set($('#railArtist'), t.artist);
   }
 }
 
@@ -2831,9 +2858,9 @@ function renderPlayer() {
   if (!t) return;
   $('#pArt').src = t.cover;
   $('#pArt').alt = t.title;
-  $('#pTitle').textContent = t.title;
+  MQ.set($('#pTitle'), t.title);
   $('#pAlbum').textContent = t.album || t.category;
-  $('#pArtist').textContent = t.artist;
+  MQ.set($('#pArtist'), t.artist);
   updateMediaSession(t);
 }
 
@@ -2992,12 +3019,12 @@ function renderLyrics() {
   $('#lvCover').alt = t.title;
   $('#lvBg').style.backgroundImage = 'url("' + t.cover + '")';
   setCoverGlow(t.cover);
-  $('#lvTitle').textContent = t.title;
-  $('#lvArtist').textContent = t.artist;
+  MQ.set($('#lvTitle'), t.title);
+  MQ.set($('#lvArtist'), t.artist);
   $('#lvMHeadArt').src = t.cover;
   $('#lvMHeadArt').alt = t.title;
-  $('#lvMHeadTitle').textContent = t.title;
-  $('#lvMHeadArtist').textContent = t.artist;
+  MQ.set($('#lvMHeadTitle'), t.title);
+  MQ.set($('#lvMHeadArtist'), t.artist);
   $('#lvHeart').classList.toggle('is-on', state.likes.has(t.id));
   const box = $('#lvLyrics');
   if (!t.lyrics || !t.lyrics.length) {
@@ -3979,6 +4006,126 @@ function bindEvents() {
   window.addEventListener('orientationchange', onResize);
 }
 
+/* ===================== 10-2. marquee for long titles / artists ===================== */
+/* A title that fits its box stays perfectly still; one that does not fit holds for a
+   beat so the start is readable, glides left until the end is readable, holds again,
+   then glides back and repeats. Only transform is animated, so the work stays on the
+   compositor (no reflow, smooth on iPhone Safari). Overflow is re-measured on track
+   change, language switch, resize, and whenever the element or its text changes size. */
+const MQ = (function () {
+  const HOLD_START = 1800;   /* ms — read the beginning */
+  const HOLD_END = 1500;     /* ms — read the end */
+  const RETURN_MS = 850;     /* ms — glide back */
+  const SPEED = 40;          /* px per second while scrolling */
+  const MIN_TRAVEL = 2800;   /* ms — never race through a short overflow */
+  const EDGE = 10;           /* px — width of the soft fade at either end */
+  const TOLERANCE = 2;       /* px — sub-pixel rounding still counts as “fits” */
+  const SELECTORS = ['#lvTitle', '#lvArtist', '#lvMHeadTitle', '#lvMHeadArtist', '#pTitle', '#pArtist', '#railTitle', '#railArtist'];
+  const items = [];
+  let seq = 0;
+  let sheet = null;
+  let timer = 0;
+
+  function styleSheet() {
+    if (!sheet) { sheet = document.createElement('style'); sheet.id = 'enplyMqFrames'; document.head.appendChild(sheet); }
+    return sheet;
+  }
+
+  /* Wrap the text in its own span so it can move independently of the clipped box. */
+  function wrap(sel) {
+    const el = document.querySelector(sel);
+    if (!el || el.__mq) return;
+    const inner = document.createElement('span');
+    inner.className = 'mq-in';
+    inner.textContent = el.textContent;
+    el.textContent = '';
+    el.appendChild(inner);
+    el.classList.add('mq');
+    el.__mq = { el: el, inner: inner, idx: items.length, on: false, shift: -1, rule: '' };
+    items.push(el.__mq);
+  }
+
+  function stop(it) {
+    if (!it.on && !it.rule) return;
+    it.on = false;
+    it.shift = -1;
+    it.rule = '';
+    it.el.classList.remove('is-on');
+    it.inner.style.animation = 'none';
+  }
+
+  /* One keyframe set per active line: pause → glide → pause → glide back. */
+  function scroll(it, over) {
+    seq += 1;
+    const travel = Math.max(MIN_TRAVEL, Math.round(((over + EDGE * 2) / SPEED) * 1000));
+    const total = HOLD_START + travel + HOLD_END + RETURN_MS;
+    const p1 = (HOLD_START / total) * 100;
+    const p2 = ((HOLD_START + travel) / total) * 100;
+    const p3 = ((HOLD_START + travel + HOLD_END) / total) * 100;
+    const name = 'mqf' + it.idx + '-' + seq;
+    const a = 'translate3d(' + EDGE + 'px,0,0)';
+    const b = 'translate3d(' + (-(over + EDGE)) + 'px,0,0)';
+    it.rule = '@keyframes ' + name + '{' +
+      '0%{transform:' + a + ';animation-timing-function:linear}' +
+      p1.toFixed(2) + '%{transform:' + a + ';animation-timing-function:cubic-bezier(.33,0,.3,1)}' +
+      p2.toFixed(2) + '%{transform:' + b + ';animation-timing-function:linear}' +
+      p3.toFixed(2) + '%{transform:' + b + ';animation-timing-function:cubic-bezier(.4,0,.45,1)}' +
+      '100%{transform:' + a + '}}';
+    it.inner.style.animation = 'none';
+    void it.inner.offsetWidth;   /* let the reset land so the run starts over */
+    it.inner.style.animation = name + ' ' + (total / 1000).toFixed(2) + 's linear infinite';
+    it.el.classList.add('is-on');
+    it.on = true;
+    it.shift = over;
+  }
+
+  function measure(it) {
+    const el = it.el;
+    if (!el.isConnected || el.clientWidth < 1) { stop(it); return; }  /* hidden view — measured again when it opens */
+    const over = Math.ceil(it.inner.getBoundingClientRect().width) - el.clientWidth;
+    if (over <= TOLERANCE) { stop(it); return; }
+    if (it.on && Math.abs(it.shift - over) <= 1) return;  /* still fits the same way: let it keep running */
+    scroll(it, over);
+  }
+
+  function recalc() {
+    timer = 0;
+    items.forEach(measure);
+    const css = items.filter((it) => it.rule).map((it) => it.rule).join('\n');
+    if (styleSheet().textContent !== css) styleSheet().textContent = css;
+  }
+
+  function schedule() {
+    if (timer) return;
+    timer = setTimeout(recalc, 100);
+  }
+
+  function setText(el, text) {
+    if (!el) return;
+    const v = String(text == null ? '' : text);
+    const it = el.__mq;
+    if (!it) { el.textContent = v; return; }
+    if (it.inner.textContent === v) return;  /* unchanged: do not restart the run */
+    it.inner.textContent = v;
+    it.shift = -1;
+    schedule();
+  }
+
+  function init() {
+    SELECTORS.forEach(wrap);
+    if (window.ResizeObserver) {
+      const ro = new ResizeObserver(schedule);
+      items.forEach((it) => { ro.observe(it.el); ro.observe(it.inner); });
+    }
+    window.addEventListener('resize', schedule);
+    window.addEventListener('orientationchange', schedule);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(schedule);
+    schedule();
+  }
+
+  return { init: init, set: setText, schedule: schedule };
+})();
+
 /* ===================== 11. boot ===================== */
 function registerSW() {
   if (!('serviceWorker' in navigator) || location.protocol === 'file:') return;
@@ -4024,6 +4171,7 @@ async function init() {
   await loadEdits();
   if (!getTrack(state.trackId)) { const f = allTracks()[0]; state.trackId = f ? f.id : null; state.dur = f ? f.duration : 0; }
   applyStatic();
+  MQ.init();
   bindEvents();
   setupMediaSession();
   renderGhStatus();
