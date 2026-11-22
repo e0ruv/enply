@@ -309,6 +309,7 @@ img{display:block}
   transition:transform .4s cubic-bezier(.2,.8,.2,1),opacity .3s;
 }
 .player-wrap.is-hidden{transform:translateY(150%);opacity:0}
+.player-wrap.is-hidden .player{pointer-events:none}
 .player{
   pointer-events:auto;width:min(1420px,100%);display:grid;grid-template-columns:auto minmax(0,1fr) auto;
   align-items:center;gap:min(2.2vw,26px);padding:11px 16px 11px 14px;border-radius:20px;
@@ -424,6 +425,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
 .view.is-active{display:block;animation:viewIn .32s ease}
 @keyframes viewIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .page-title{font-size:clamp(25px,2.25vw,35px);font-weight:700;letter-spacing:-.022em;margin:0 0 7px}
+.page-title.tap-secret{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;cursor:default}
 .page-sub{font-size:13px;color:var(--txt-3);margin:0 0 18px;line-height:1.5}
 .search-bar{display:flex;align-items:center;gap:11px;height:52px;padding:0 16px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid var(--line);margin-bottom:14px;transition:border-color .16s,background .16s}
 .search-bar:focus-within{border-color:rgba(167,139,250,.6);background:rgba(255,255,255,.09)}
@@ -448,6 +450,30 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
 .admin-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,.85fr);gap:16px;align-items:start}
 .admin-form{display:flex;flex-direction:column;gap:12px}
 .admin-side{display:flex;flex-direction:column;gap:14px}
+#adminBody[hidden],#adminGate[hidden]{display:none!important}
+.gate-wrap{display:grid;place-items:center;min-height:min(62vh,520px);padding:18px 0 26px}
+.gate-card{width:100%;max-width:350px;padding:28px 24px 22px;border-radius:22px;text-align:center;
+  background:linear-gradient(160deg,rgba(255,255,255,.15),rgba(255,255,255,.05));
+  border:1px solid rgba(255,255,255,.18);
+  backdrop-filter:blur(30px) saturate(160%);-webkit-backdrop-filter:blur(30px) saturate(160%);
+  box-shadow:0 30px 70px rgba(6,2,18,.5),inset 0 1px 0 rgba(255,255,255,.22)}
+.gate-lock{width:52px;height:52px;margin:0 auto 15px;border-radius:16px;display:grid;place-items:center;color:#fff;
+  background:linear-gradient(140deg,rgba(167,139,250,.75),rgba(236,72,153,.6));
+  box-shadow:0 14px 30px rgba(124,58,237,.35),inset 0 1px 0 rgba(255,255,255,.35)}
+.gate-lock .ic{width:23px;height:23px}
+.gate-card .gate-title{font-size:20px;font-weight:700;letter-spacing:-.02em;margin:0 0 7px}
+.gate-sub{font-size:12.5px;color:var(--txt-3);margin:0 0 17px;line-height:1.5}
+.gate-input{width:100%;height:56px;border-radius:14px;border:1px solid rgba(255,255,255,.2);
+  background:rgba(10,4,24,.42);color:#fff;text-align:center;font-size:23px;font-weight:700;
+  letter-spacing:.6em;text-indent:.6em;font-variant-numeric:tabular-nums;outline:0;
+  transition:border-color .16s,box-shadow .16s,background .16s}
+.gate-input:focus{border-color:rgba(196,181,253,.8);box-shadow:0 0 0 4px rgba(167,139,250,.16);background:rgba(10,4,24,.58)}
+.gate-err{font-size:11.5px;font-weight:600;color:#fda4af;margin:10px 0 0;min-height:15px;visibility:hidden}
+.gate-err.is-on{visibility:visible}
+.gate-actions{display:flex;gap:8px;margin-top:14px}
+.gate-actions .btn-primary,.gate-actions .btn-soft{flex:1;justify-content:center}
+.gate-card.is-bad{animation:gateShake .44s cubic-bezier(.36,.07,.19,.97)}
+@keyframes gateShake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
 .drop{position:relative;border:1.5px dashed rgba(196,181,253,.38);border-radius:16px;padding:18px 16px;text-align:center;cursor:pointer;background:rgba(167,139,250,.05);transition:border-color .16s,background .16s}
 .drop:hover,.drop.is-over{border-color:rgba(196,181,253,.85);background:rgba(167,139,250,.13)}
 .drop .ic{width:26px;height:26px;margin:0 auto 8px;color:var(--violet-lite);opacity:.85}
@@ -727,8 +753,6 @@ select.input option{background:#2a1450;color:#fff}
       <button class="nav-item" data-view="explore"><svg class="ic"><use href="#i-search"/></svg><span data-i18n="nav_explore">탐색</span></button>
       <button class="nav-item" data-view="library"><svg class="ic"><use href="#i-heart"/></svg><span data-i18n="nav_library">라이브러리</span></button>
       <button class="nav-item" data-view="notes"><svg class="ic"><use href="#i-notes"/></svg><span data-i18n="nav_notes">패치노트</span></button>
-      <div class="nav-sep" style="margin-top:auto"></div>
-      <button class="nav-item" data-view="admin"><svg class="ic"><use href="#i-lock"/></svg><span data-i18n="nav_admin">관리자</span></button>
     </nav>
   </aside>
 
@@ -815,13 +839,27 @@ select.input option{background:#2a1450;color:#fff}
 
         <!-- ================= PATCH NOTES ================= -->
         <section class="view" id="view-notes">
-          <h2 class="page-title" data-i18n="notes_title">패치노트</h2>
+          <h2 class="page-title tap-secret" id="notesTitle" data-i18n="notes_title">패치노트</h2>
           <p class="page-sub" data-i18n="notes_sub">ENPLY가 달라진 기록이에요.</p>
           <div class="notes" id="notesList"></div>
         </section>
 
         <!-- ================= ADMIN ================= -->
         <section class="view" id="view-admin">
+          <div class="gate-wrap" id="adminGate">
+            <form class="gate-card" id="adminGateForm" autocomplete="off" novalidate>
+              <div class="gate-lock" aria-hidden="true"><svg class="ic"><use href="#i-lock"/></svg></div>
+              <h2 class="gate-title" data-i18n="gate_title">관리자 잠금</h2>
+              <p class="gate-sub" data-i18n="gate_sub">4자리 비밀번호를 입력하세요</p>
+              <input id="gateInput" class="gate-input" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="4자리 비밀번호" data-i18n-aria="gate_sub">
+              <p class="gate-err" id="gateErr" role="alert" data-i18n="gate_err">비밀번호가 올바르지 않습니다</p>
+              <div class="gate-actions">
+                <button class="btn-primary" type="submit"><span data-i18n="gate_ok">확인</span></button>
+                <button class="btn-soft" type="button" id="gateCancel" data-i18n="gate_cancel">취소</button>
+              </div>
+            </form>
+          </div>
+          <div class="admin-body" id="adminBody" hidden>
           <h2 class="page-title" data-i18n="admin_title">관리자</h2>
           <p class="page-sub" data-i18n="admin_sub">내 컴퓨터의 오디오 파일을 ENPLY에 추가하세요. 파일은 이 브라우저에만 저장되고 서버로 전송되지 않습니다.</p>
           <div class="admin-grid">
@@ -891,6 +929,7 @@ select.input option{background:#2a1450;color:#fff}
             </div>
           </div>
           <div class="uploaded" id="userTracks"></div>
+          </div>
         </section>
       </main>
 
@@ -1050,6 +1089,8 @@ const I18N = {
     notes_latest: '최신',
     admin_title: '관리자',
     admin_sub: '내 컴퓨터의 오디오 파일을 ENPLY에 추가하세요. 파일은 이 브라우저에만 저장되고 서버로 전송되지 않습니다.',
+    gate_title: '관리자 잠금', gate_sub: '4자리 비밀번호를 입력하세요', gate_ok: '확인', gate_cancel: '취소',
+    gate_err: '비밀번호가 올바르지 않습니다',
     admin_drop_title: '오디오 파일 선택',
     admin_drop_sub: 'MP3 · WAV · M4A / 최대 40MB<br>파일을 여기로 끌어다 놓아도 됩니다',
     f_title: '제목', ph_title: '예: Thirsty (future house remix)',
@@ -1131,6 +1172,8 @@ const I18N = {
     notes_latest: 'Latest',
     admin_title: 'Admin',
     admin_sub: 'Add audio files from this computer to ENPLY. Files stay in this browser and are never sent to a server.',
+    gate_title: 'Admin Lock', gate_sub: 'Enter 4-digit passcode', gate_ok: 'Unlock', gate_cancel: 'Cancel',
+    gate_err: 'Incorrect passcode',
     admin_drop_title: 'Choose an audio file',
     admin_drop_sub: 'MP3 · WAV · M4A / up to 40MB<br>or drag and drop a file here',
     f_title: 'Title', ph_title: 'e.g. Thirsty (future house remix)',
@@ -1567,6 +1610,8 @@ const state = {
 let userTracks = [];
 let audio = null;
 let raf = 0, lastTs = 0;
+const ADMIN_PASSCODE = '6160';
+let adminUnlocked = false;
 
 function allTracks() { return DEMO_TRACKS.concat(userTracks); }
 function getTrack(id) { return allTracks().find((t) => t.id === id) || null; }
@@ -2142,6 +2187,7 @@ function bytes(n) {
 }
 
 function renderAdmin() {
+  if (!adminUnlocked) return;
   const users = userTracks;
   const size = users.reduce((s, t) => s + ((t.audioBlob && t.audioBlob.size) || 0), 0);
   $('#statTotal').textContent = allTracks().length;
@@ -2191,7 +2237,42 @@ function setView(v) {
   if (sc) sc.scrollTop = 0;
   if (v === 'explore') renderExplore();
   if (v === 'library') renderLibrary();
-  if (v === 'admin') renderAdmin();
+  if (v === 'admin') { if (adminUnlocked) { showAdminView(); } else { lockAdminView(); } }
+}
+
+/* --- admin passcode gate (hidden entry: double-tap the Patch Notes title) --- */
+function lockAdminView() {
+  const gate = $('#adminGate'), body = $('#adminBody');
+  if (!gate || !body) return;
+  body.hidden = true;
+  gate.hidden = false;
+  const err = $('#gateErr');
+  if (err) err.classList.remove('is-on');
+  const inp = $('#gateInput');
+  if (inp) {
+    inp.value = '';
+    setTimeout(() => { try { inp.focus({ preventScroll: true }); } catch (e) { inp.focus(); } }, 80);
+  }
+}
+function showAdminView() {
+  const gate = $('#adminGate'), body = $('#adminBody');
+  if (gate) gate.hidden = true;
+  if (body) body.hidden = false;
+  renderAdmin();
+}
+function tryAdminPasscode() {
+  const inp = $('#gateInput'), err = $('#gateErr');
+  if (!inp) return;
+  if (inp.value === ADMIN_PASSCODE) {
+    adminUnlocked = true;
+    showAdminView();
+    return;
+  }
+  inp.value = '';
+  if (err) err.classList.add('is-on');
+  const card = $('#adminGateForm');
+  if (card) { card.classList.remove('is-bad'); void card.offsetWidth; card.classList.add('is-bad'); }
+  try { inp.focus({ preventScroll: true }); } catch (e) { try { inp.focus(); } catch (e2) {} }
 }
 
 /* ===================== 8. playback helpers bound to UI ===================== */
@@ -2378,6 +2459,40 @@ function bindEvents() {
     if (!b) return;
     setView(b.dataset.view);
   });
+
+  /* hidden admin entry: tap/click the Patch Notes title twice */
+  const notesTitle = $('#notesTitle');
+  if (notesTitle) {
+    let taps = 0, tapTimer = null;
+    const openAdmin = () => {
+      taps = 0;
+      clearTimeout(tapTimer);
+      setView('admin');
+    };
+    notesTitle.addEventListener('click', () => {
+      taps += 1;
+      if (taps >= 2) { openAdmin(); return; }
+      clearTimeout(tapTimer);
+      tapTimer = setTimeout(() => { taps = 0; }, 450);
+    });
+    notesTitle.addEventListener('dblclick', (e) => { e.preventDefault(); openAdmin(); });
+  }
+
+  const gateForm = $('#adminGateForm');
+  if (gateForm) {
+    const gateInput = $('#gateInput');
+    gateForm.addEventListener('submit', (e) => { e.preventDefault(); tryAdminPasscode(); });
+    if (gateInput) {
+      gateInput.addEventListener('input', () => {
+        gateInput.value = gateInput.value.replace(/\D/g, '').slice(0, 4);
+        const err = $('#gateErr');
+        if (err) err.classList.remove('is-on');
+        if (gateInput.value.length === 4) setTimeout(tryAdminPasscode, 90);
+      });
+    }
+  }
+  const gateCancel = $('#gateCancel');
+  if (gateCancel) gateCancel.addEventListener('click', () => { setView('notes'); });
 
   $('#langSwitch').addEventListener('click', (e) => {
     const b = e.target.closest('.lang-opt');
