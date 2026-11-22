@@ -529,6 +529,18 @@ select.input option{background:#2a1450;color:#fff}
 .edit-x .ic{width:12px;height:12px}
 .cover-preview{width:34px;height:34px;border-radius:8px;object-fit:cover;flex:none;box-shadow:0 4px 12px rgba(0,0,0,.35)}
 .cover-preview[hidden]{display:none!important}
+/* cover picker: the file input itself is laid transparently over the whole drop zone, so a tap
+   on mobile is a direct, native activation of <input type=file> (iOS then offers 사진 보관함 /
+   카메라 / 파일 선택). accept stays "image/*" with no extensions and no capture attribute. */
+.cover-drop{display:block;overflow:hidden}
+.cover-drop-inner{display:flex;align-items:center;gap:10px;justify-content:center;min-width:0;font-size:11.5px;color:var(--txt-3);line-height:1.5}
+.cover-drop-text{display:block;min-width:0;text-align:left}
+.cover-drop-text>span{display:block}
+#coverLabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.cover-formats{font-size:10.5px;line-height:1.4;opacity:.72;margin-top:1px}
+.cover-formats[hidden]{display:none!important}
+.cover-drop .cover-input{position:absolute;left:0;top:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:2;-webkit-tap-highlight-color:transparent;font-size:0}
+.cover-drop.is-busy{opacity:.72}
 #uploadForm.is-editing{border-color:rgba(167,139,250,.34);box-shadow:0 0 0 1px rgba(167,139,250,.12),0 18px 50px rgba(10,3,24,.4)}
 
 /* ============ 11. toast ============ */
@@ -978,14 +990,17 @@ select.input option{background:#2a1450;color:#fff}
               </div>
               <div class="field">
                 <label data-i18n="f_cover">커버 이미지 (선택)</label>
-                <div class="drop" id="coverDrop" tabindex="0" role="button" style="padding:13px 16px" aria-label="커버 이미지 선택" data-i18n-aria="cover_aria">
-                  <div style="display:flex;align-items:center;gap:10px;justify-content:center;min-width:0">
+                <label class="drop cover-drop" id="coverDrop" for="coverFile" tabindex="0" role="button" style="padding:13px 16px" aria-label="커버 이미지 선택" data-i18n-aria="cover_aria">
+                  <span class="cover-drop-inner">
                     <img class="cover-preview" id="coverPreview" alt="" hidden>
                     <svg class="ic" style="margin:0;width:19px;height:19px;flex:none"><use href="#i-image"/></svg>
-                    <span id="coverLabel" data-i18n="cover_hint">JPG · PNG · WEBP — 없으면 자동으로 커버를 만들어요</span>
-                  </div>
-                  <input type="file" id="coverFile" accept="image/*" hidden>
-                </div>
+                    <span class="cover-drop-text">
+                      <span id="coverLabel" data-i18n="cover_hint">사진 보관함 · 카메라에서 선택</span>
+                      <span class="cover-formats" id="coverFormats" data-i18n="cover_formats">JPG · PNG · WebP · HEIC</span>
+                    </span>
+                  </span>
+                  <input class="cover-input" type="file" id="coverFile" accept="image/*" tabindex="-1">
+                </label>
               </div>
               <div class="field">
                 <label for="fLyrics" data-i18n="f_lyrics">가사 (선택)</label>
@@ -1206,7 +1221,9 @@ const I18N = {
     f_category: '카테고리',
     f_tags: '태그 (쉼표 구분)', ph_tags: '리믹스, Remix',
     f_cover: '커버 이미지 (선택)', cover_aria: '커버 이미지 선택',
-    cover_hint: 'JPG · PNG · WEBP — 없으면 자동으로 커버를 만들어요',
+    cover_hint: '사진 보관함 · 카메라에서 선택',
+    cover_formats: 'JPG · PNG · WebP · HEIC',
+    cover_loading: '이미지 준비 중…',
     cover_picked: (name) => name + ' 선택됨',
     f_lyrics: '가사 (선택)',
     ph_lyrics: '[00:12.50] 첫 번째 가사\n[00:18.20] 두 번째 가사',
@@ -1299,7 +1316,9 @@ const I18N = {
     f_category: 'Category',
     f_tags: 'Tags (comma separated)', ph_tags: 'Remix, dance',
     f_cover: 'Cover image (optional)', cover_aria: 'Choose a cover image',
-    cover_hint: 'JPG · PNG · WEBP — we’ll generate one if you skip it',
+    cover_hint: 'Choose from Photos or Camera',
+    cover_formats: 'JPG · PNG · WebP · HEIC',
+    cover_loading: 'Preparing image…',
     cover_picked: (name) => name + ' selected',
     f_lyrics: 'Lyrics (optional)',
     ph_lyrics: '[00:12.50] First line\n[00:18.20] Second line',
@@ -1463,7 +1482,7 @@ function applyStatic() {
     b.classList.toggle('is-on', on);
     b.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
-  if (pendingCoverName && $('#coverLabel')) $('#coverLabel').textContent = tr('cover_picked', pendingCoverName);
+  if (pendingCoverName && $('#coverLabel')) updateCoverHint();
   const sl = $('#submitLabel');
   if (sl) sl.textContent = tr(editingId ? 'save_changes' : 'add_track');
   const rl = $('#resetLabel');
@@ -2658,19 +2677,124 @@ function setAudioPicked(file) {
   }
 }
 
-function setCoverPicked(file) {
+/* --- cover image pipeline -------------------------------------------------
+   iOS hands HEIC/JPEG over straight from 사진 보관함. Big camera photos would
+   bloat IndexedDB and slow the app down, so anything heavy is decoded,
+   downscaled (long edge <= 1200px) and re-encoded; that also turns HEIC into
+   JPEG so the stored cover still shows on browsers that cannot decode HEIC.
+   Light files are kept untouched; a file the browser cannot decode fails with a toast
+   instead of being stored as a broken cover. */
+const COVER_MAX_EDGE = 1200;
+const COVER_SMALL_FILE = 700 * 1024;   /* ~700KB: light enough to keep as-is */
+const COVER_MAX_CHARS = 2000000;       /* hard cap: ~1.5MB binary in IndexedDB */
+const COVER_SOFT_CHARS = 900000;       /* aim below this (~675KB) for normal photos */
+const COVER_STEPS = [[1200, 0.86], [1000, 0.8], [800, 0.74]];
+let coverJobSeq = 0;
+
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.onerror = () => reject(reader.error || new Error('read_error'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function decodeImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('decode_error'));
+    img.src = src;
+  });
+}
+
+function drawCover(img, maxEdge, mime, quality, fill) {
+  const srcW = img.naturalWidth || img.width || 0;
+  const srcH = img.naturalHeight || img.height || 0;
+  if (!srcW || !srcH) return '';
+  const scale = Math.min(1, maxEdge / Math.max(srcW, srcH));
+  const w = Math.max(1, Math.round(srcW * scale));
+  const h = Math.max(1, Math.round(srcH * scale));
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  const ctx = c.getContext('2d');
+  if (!ctx) return '';
+  if (fill) { ctx.fillStyle = fill; ctx.fillRect(0, 0, w, h); }
+  try { ctx.imageSmoothingQuality = 'high'; } catch (e) {}
+  try { ctx.drawImage(img, 0, 0, w, h); } catch (e) { return ''; }
+  try { return c.toDataURL(mime, quality); } catch (e) { return ''; }
+}
+
+async function prepareCoverImage(file) {
+  const type = String(file.type || '').toLowerCase();
+  const name = String(file.name || '').toLowerCase();
+  const isImage = /^image\//.test(type) || /\.(jpe?g|png|webp|gif|hei[cf]|avif|bmp)$/.test(name);
+  if (!isImage) { const err = new Error('not_image'); err.code = 'not_image'; throw err; }
+
+  const raw = await readFileAsDataURL(file);
+  const heic = /hei[cf]/.test(type) || /\.hei[cf]$/.test(name);
+  if (!heic && file.size <= COVER_SMALL_FILE) return raw;
+
+  let img;
+  try { img = await decodeImage(raw); }
+  catch (e) {
+    /* if this browser cannot decode it, storing it anyway would leave a broken cover */
+    const err = new Error('decode_error'); err.code = 'decode_error'; throw err;
+  }
+
+  const longEdge = Math.max(img.naturalWidth || 0, img.naturalHeight || 0);
+  if (!heic && longEdge && longEdge <= COVER_MAX_EDGE && raw.length <= COVER_MAX_CHARS) return raw;
+
+  /* formats that can carry transparency keep it (PNG) unless that gets too heavy */
+  if (/png|webp|gif|avif/.test(type)) {
+    const png = drawCover(img, COVER_MAX_EDGE, 'image/png', 0, null);
+    if (png && png.length <= COVER_SOFT_CHARS) return png;
+  }
+  /* otherwise JPEG, stepping down size/quality until the data URL is light enough */
+  let out = '';
+  for (let i = 0; i < COVER_STEPS.length; i += 1) {
+    out = drawCover(img, COVER_STEPS[i][0], 'image/jpeg', COVER_STEPS[i][1], '#0e0b16');
+    if (out && out.length <= COVER_SOFT_CHARS) return out;
+  }
+  if (out) return out;
+  return drawCover(img, COVER_STEPS[COVER_STEPS.length - 1][0], 'image/jpeg', COVER_STEPS[COVER_STEPS.length - 1][1], '#0e0b16') || raw;
+}
+
+function updateCoverHint() {
+  const lbl = $('#coverLabel');
+  const fmt = $('#coverFormats');
+  const picked = !!(pendingCover && pendingCoverName);
+  if (lbl) lbl.textContent = picked ? tr('cover_picked', pendingCoverName) : tr('cover_hint');
+  if (fmt) fmt.hidden = picked;
+}
+
+async function setCoverPicked(file) {
   if (!file) return;
-  if (!/^image\//.test(file.type || '')) { toast(tr('toast_bad_image'), 'alert'); return; }
-  const reader = new FileReader();
-  reader.onload = () => {
-    pendingCover = String(reader.result);
-    pendingCoverName = file.name;
-    $('#coverLabel').textContent = tr('cover_picked', file.name);
-    const prev = $('#coverPreview');
+  const drop = $('#coverDrop');
+  const prev = $('#coverPreview');
+  const lbl = $('#coverLabel');
+  const fmt = $('#coverFormats');
+  const seq = ++coverJobSeq;
+  if (drop) drop.classList.add('is-busy');
+  if (lbl) lbl.textContent = tr('cover_loading');
+  if (fmt) fmt.hidden = true;
+  try {
+    const data = await prepareCoverImage(file);
+    if (seq !== coverJobSeq) return;
+    pendingCover = data;
+    pendingCoverName = file.name || 'image';
+    updateCoverHint();
     if (prev) { prev.src = pendingCover; prev.hidden = false; }
-  };
-  reader.onerror = () => toast(tr('toast_img_fail'), 'alert');
-  reader.readAsDataURL(file);
+  } catch (err) {
+    if (seq !== coverJobSeq) return;
+    toast(tr(err && err.code === 'not_image' ? 'toast_bad_image' : 'toast_img_fail'), 'alert');
+    updateCoverHint();
+  } finally {
+    if (seq === coverJobSeq && drop) drop.classList.remove('is-busy');
+    const inp = $('#coverFile');
+    if (inp) { try { inp.value = ''; } catch (e) {} } /* same photo pickable twice */
+  }
 }
 
 function probeDuration(file) {
@@ -2767,7 +2891,7 @@ function startEdit(id) {
     else box.hidden = true;
   }
   const lbl = $('#coverLabel');
-  if (lbl) lbl.textContent = tr('cover_hint');
+  if (lbl) updateCoverHint();
   const prev = $('#coverPreview');
   if (prev) {
     if (t.cover) { prev.src = t.cover; prev.hidden = false; }
@@ -2900,7 +3024,7 @@ function resetUploadForm() {
   const box = $('#audioPicked');
   if (box) box.hidden = true;
   const lbl = $('#coverLabel');
-  if (lbl) lbl.textContent = tr('cover_hint');
+  if (lbl) updateCoverHint();
   const prev = $('#coverPreview');
   if (prev) { prev.hidden = true; prev.removeAttribute('src'); }
   if (editingId) {
@@ -3141,8 +3265,14 @@ function bindEvents() {
   $('#audioDrop').addEventListener('click', () => audioInput.click());
   $('#audioDrop').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); audioInput.click(); } });
   audioInput.addEventListener('change', () => setAudioPicked(audioInput.files[0]));
-  $('#coverDrop').addEventListener('click', () => coverInput.click());
-  $('#coverDrop').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); coverInput.click(); } });
+  /* The cover drop zone is a <label for="coverFile"> with the file input laid transparently
+     over it, so a tap is a direct native activation of <input type=file accept="image/*"> —
+     the one path iOS turns into the 사진 보관함 / 카메라 / 파일 선택 sheet. A JS .click() on top
+     of that would open the picker twice, so only keyboard activation is wired here. */
+  $('#coverDrop').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); coverInput.click(); }
+  });
+  coverInput.addEventListener('click', (e) => { e.stopPropagation(); });
   coverInput.addEventListener('change', () => setCoverPicked(coverInput.files[0]));
 
   ['audioDrop', 'coverDrop'].forEach((id) => {
