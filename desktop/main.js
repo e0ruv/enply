@@ -9,7 +9,7 @@
  * be started with ENPLY_URL=https://... without touching the code.
  */
 
-const { app, BrowserWindow, Menu, shell } = require('electron');
+const { app, BrowserWindow, Menu, nativeTheme, shell } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
 
@@ -231,6 +231,8 @@ function createWindow() {
 
 app.setAppUserModelId('io.github.e0ruv.enply');
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
+// the site is dark only: keep scrollbars and native widgets dark on every Windows theme
+nativeTheme.themeSource = 'dark';
 
 const singleInstance = app.requestSingleInstanceLock();
 if (!singleInstance) {
